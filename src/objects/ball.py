@@ -1,4 +1,4 @@
 """
 The ball.
-Defined by it's size, weight and bounciness.
+Defined by it's size, mass and bounciness.
 """
