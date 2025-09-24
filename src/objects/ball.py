@@ -4,9 +4,8 @@ Defined by its size, mass and bounciness.
 """
 import pygame
 
-from src.core.color import Color
-from src.core.constante import GRAVITY
-from src.math.vector_2d import Vector2D
+from core.color import Color
+from utils.vector_2d import Vector2D
 
 
 class Ball:
@@ -30,3 +29,4 @@ class Ball:
 
     def update(self):
         self.position += self.velocity
+

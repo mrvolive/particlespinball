@@ -1,7 +1,7 @@
 import pygame
 
-from src.views.game_view import GameView
-from src.views.view import View
+from views.game_view import GameView
+from views.view import View
 
 
 class HomeView(View):

@@ -2,7 +2,7 @@ import sys
 
 import pygame
 
-from src.views.home_view import HomeView
+from views.home_view import HomeView
 
 
 class App:
@@ -30,7 +30,7 @@ class App:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (
-                        event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+                    event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
                 ):
                     running = False
                 else:

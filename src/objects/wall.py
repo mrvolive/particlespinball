@@ -1,8 +1,8 @@
 """
 The walls used to make the board or some obstacles on the board
 """
-from src.core.color import Color
-from src.math.vector_2d import Vector2D
+from core.color import Color
+from utils.vector_2d import Vector2D
 import pygame
 
 
