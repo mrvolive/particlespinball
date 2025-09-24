@@ -3,6 +3,11 @@ import numpy as np
 
 class Matrix:
     @staticmethod
+    def get_distance(xa, xb, ya, yb, za=0, zb=0):
+        """Calculate the Euclidean distance between two points in 2D or 3D space."""
+        return np.sqrt((xb - xa) ** 2 + (yb - ya) ** 2 + (zb - za) ** 2)
+
+    @staticmethod
     def rotateX(matrix, angle):
         """Rotate a 3x3 matrix around the X axis by the given angle in radians."""
         c = np.cos(angle)
