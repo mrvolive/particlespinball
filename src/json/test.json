@@ -1,0 +1,20 @@
+{
+  "elements": [
+    {
+      "type": "cube",
+      "positions": [800, 500, 0],
+      "zoom": 100,
+      "scale": [1, 0.1, 2],
+      "rotate_x": 35,
+      "symX": true
+    },
+    {
+      "type": "cube",
+      "positions": [690, 500, 0],
+      "zoom": 100,
+      "scale": [0.1, 1, 1],
+      "rotate_x": 35,
+      "rotate_y": 5
+    }
+  ]
+}

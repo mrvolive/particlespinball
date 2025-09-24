@@ -53,12 +53,12 @@ class Matrix:
         return np.dot(E, matrix)
 
     @staticmethod
-    def stretch(matrix, kx, ky):
+    def stretch(matrix, kx, ky, kz=1):
         """Stretch a 3x3 matrix by the given x and y factors."""
         stretch_matrix = np.array([
             [kx, 0, 0],
             [0, ky, 0],
-            [0, 0, 1]
+            [0, 0, kz]
         ])
         return np.dot(stretch_matrix, matrix)
 
@@ -66,3 +66,24 @@ class Matrix:
     def zoom(matrix, factor):
         """Zoom a 3xN matrix by the given factor."""
         return factor * matrix
+
+    @staticmethod
+    def symX(P):
+        S = np.array([[1, 0, 0],
+                      [0, -1, 0],
+                      [0, 0, 1]])
+        return np.dot(S, P)
+
+    @staticmethod
+    def symY(P):
+        S = np.array([[-1, 0, 0],
+                      [0, 1, 0],
+                      [0, 0, 1]])
+        return np.dot(S, P)
+
+    @staticmethod
+    def symZ(P):
+        S = np.array([[1, 0, 0],
+                      [0, 1, 0],
+                      [0, 0, -1]])
+        return np.dot(S, P)

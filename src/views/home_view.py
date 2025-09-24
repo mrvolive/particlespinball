@@ -19,5 +19,5 @@ class HomeView(View):
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                return GameView(self.width, self.height, self.font)
+                return GameView()
         return self

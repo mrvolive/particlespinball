@@ -6,7 +6,9 @@ from src.views.home_view import HomeView
 
 
 class App:
-    def __init__(self, width=800, height=600, fullscreen=True):
+    def __init__(self, width=800, height=600, fullscreen=True, filename=None):
+        self.filename = filename
+
         pygame.init()
         if fullscreen:
             modes = pygame.display.list_modes()
@@ -44,5 +46,6 @@ class App:
 
 
 if __name__ == "__main__":
-    app = App()
+    filename = sys.argv[1] if len(sys.argv) > 1 else None
+    app = App(filename=filename)
     app.run()
