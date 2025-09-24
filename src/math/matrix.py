@@ -9,59 +9,48 @@ class Matrix:
 
     @staticmethod
     def rotateX(matrix, angle):
-        """Rotate a 3x3 matrix around the X axis by the given angle in radians."""
+        angle = np.radians(angle)
         c = np.cos(angle)
         s = np.sin(angle)
-        rotation_matrix = np.array([
-            [1, 0, 0],
-            [0, c, -s],
-            [0, s, c]
-        ])
-        return np.dot(matrix, rotation_matrix)
+        R = np.array([[1, 0, 0],
+                      [0, c, -s],
+                      [0, s, c]])
+        return np.dot(R, matrix)
 
     @staticmethod
     def rotateY(matrix, angle):
-        """Rotate a 3x3 matrix around the Y axis by the given angle in radians."""
+        angle = np.radians(angle)
         c = np.cos(angle)
         s = np.sin(angle)
-        rotation_matrix = np.array([
-            [c, 0, s],
-            [0, 1, 0],
-            [-s, 0, c]
-        ])
-        return np.dot(matrix, rotation_matrix)
+        R = np.array([[c, 0, s],
+                      [0, 1, 0],
+                      [-s, 0, c]])
+        return np.dot(R, matrix)
 
     @staticmethod
     def rotateZ(matrix, angle):
-        """Rotate a 3x3 matrix around the Z axis by the given angle in radians."""
+        angle = np.radians(angle)
         c = np.cos(angle)
         s = np.sin(angle)
-        rotation_matrix = np.array([
-            [c, -s, 0],
-            [s, c, 0],
-            [0, 0, 1]
-        ])
-        return np.dot(matrix, rotation_matrix)
+        R = np.array([[c, -s, 0],
+                      [s, c, 0],
+                      [0, 0, 1]])
+        return np.dot(R, matrix)
 
     @staticmethod
-    def translate(matrix, tx, ty):
-        """Translate a 3x3 matrix by the given x and y offsets."""
-        translation_matrix = np.array([
-            [1, 0, tx],
-            [0, 1, ty],
-            [0, 0, 1]
-        ])
-        return np.dot(matrix, translation_matrix)
+    def translate(matrix, x, y, z):
+        for i in range(len(matrix[0])):
+            matrix[0][i] += x
+            matrix[1][i] += y
+            matrix[2][i] += z
+        return matrix
 
     @staticmethod
-    def scale(matrix, sx, sy):
-        """Scale a 3x3 matrix by the given x and y factors."""
-        scaling_matrix = np.array([
-            [sx, 0, 0],
-            [0, sy, 0],
-            [0, 0, 1]
-        ])
-        return np.dot(matrix, scaling_matrix)
+    def scale(matrix, rx, ry, rz):
+        E = np.array([[rx, 0, 0],
+                      [0, ry, 0],
+                      [0, 0, rz]])
+        return np.dot(E, matrix)
 
     @staticmethod
     def stretch(matrix, kx, ky):
@@ -71,4 +60,9 @@ class Matrix:
             [0, ky, 0],
             [0, 0, 1]
         ])
-        return np.dot(matrix, stretch_matrix)
+        return np.dot(stretch_matrix, matrix)
+
+    @staticmethod
+    def zoom(matrix, factor):
+        """Zoom a 3xN matrix by the given factor."""
+        return factor * matrix
