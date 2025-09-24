@@ -1,6 +1,6 @@
 """
 The ball.
-Defined by its size, weight and bounciness.
+Defined by its size, mass and bounciness.
 """
 import pygame
 
