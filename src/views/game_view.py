@@ -4,30 +4,10 @@ import pygame
 from src.core.color import Color
 from src.core.object3D import Object3D
 from src.math.matrix import Matrix
+from src.objects.cube import Cube
+from src.objects.sphere import Sphere
 from src.views.view import View
 
-
-def sphere_matrix(radius=1, n_lat=12, n_lon=24):
-    points = []
-    for i in range(n_lat + 1):
-        theta = np.pi * i / n_lat
-        for j in range(n_lon):
-            phi = 2 * np.pi * j / n_lon
-            x = radius * np.sin(theta) * np.cos(phi)
-            y = radius * np.sin(theta) * np.sin(phi)
-            z = radius * np.cos(theta)
-            points.append([x, y, z])
-    return np.array(points).T  # shape (3, N)
-
-def sphere_adjacency(P, threshold=0.3):
-    N = P.shape[1]
-    A = np.zeros((N, N), dtype=bool)
-    for i in range(N):
-        for j in range(i + 1, N):
-            d = np.linalg.norm(P[:, i] - P[:, j])
-            if d < threshold:
-                A[i, j] = A[j, i] = True
-    return A
 
 def draw_cube(screen, P, A):
     for i in range(len(P[0]) - 1):
@@ -60,32 +40,15 @@ class GameView(View):
             'MOVE_DOWN': False
         }
 
-        self.Pcube = np.array([
-            [-1, -1, -1, -1, 1, 1, 1, 1],
-            [-1, -1, 1, 1, -1, -1, 1, 1],
-            [-1, 1, -1, 1, -1, 1, -1, 1]
-        ])
-        self.Acube = self.init_acube()
-        self.cube = Object3D(self.Pcube, (800, 500, 0))
+        self.cubeObj = Cube()
+        self.sphereObj = Sphere()
 
-        self.Psphere = sphere_matrix(radius=1, n_lat=12, n_lon=24)
-        self.Asphere = sphere_adjacency(self.Psphere, threshold=0.265)
-        self.sphere = Object3D(self.Psphere, (400, 300, 0))
+
+
+        self.cube = Object3D(self.cubeObj.Pmatrix, (800, 500, 0))
+        self.sphere = Object3D(self.sphereObj.Pmatrix, (800, 500, 0))
 
         self.make_transformations()
-
-    def init_acube(self):
-        Acube = np.zeros((8, 8), dtype=bool)
-        for i in range(8):
-            for j in range(8):
-                if i != j:
-                    if Matrix.get_distance(
-                            self.Pcube[0][i], self.Pcube[0][j],
-                            self.Pcube[1][i], self.Pcube[1][j],
-                            self.Pcube[2][i], self.Pcube[2][j]
-                    ) <= 2.1:
-                        Acube[i, j] = True
-        return Acube
 
     def make_transformations(self):
         self.cube.matrix = Matrix.zoom(self.cube.matrix, 100)
@@ -110,6 +73,7 @@ class GameView(View):
                 P = Matrix.zoom(P, 0.9)
             return P
 
+        self.cube.apply_at_origin(transform)
         self.sphere.apply_at_origin(transform)
 
         dx = dy = dz = 0
@@ -122,12 +86,19 @@ class GameView(View):
         if self.keys['MOVE_DOWN']:
             dy += 10
 
+        self.cube.position = (
+            self.cube.position[0] + dx,
+            self.cube.position[1] + dy,
+            self.cube.position[2] + dz
+        )
+
         self.sphere.position = (
             self.sphere.position[0] + dx,
             self.sphere.position[1] + dy,
             self.sphere.position[2] + dz
         )
 
+        self.cube.matrix = Matrix.translate(self.cube.matrix, dx, dy, dz)
         self.sphere.matrix = Matrix.translate(self.sphere.matrix, dx, dy, dz)
         return self
 
@@ -178,5 +149,5 @@ class GameView(View):
 
     def draw(self, screen):
         screen.fill(Color.BLACK)
-        # draw_cube(screen, self.cube.matrix, self.Acube)
-        draw_sphere(screen, self.sphere.matrix, self.Asphere)
+        draw_cube(screen, self.cube.matrix, self.cubeObj.Amatrix)
+        draw_sphere(screen, self.sphere.matrix, self.sphereObj.Amatrix)
