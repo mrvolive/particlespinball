@@ -92,7 +92,7 @@ class GameView(View):
 
         self.board = Board(
             boundaries=[leftWall, rightWall, topWall, bottomWall],
-            objects=[peg1, peg2],
+            components=[peg1, peg2],
             balls=[
                 Ball(
                     x=self.width // 2,

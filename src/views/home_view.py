@@ -1,5 +1,6 @@
 import pygame
 
+from views.game_view import GameView
 from views.view import View
 from views.falling_ball_view import FallingBallView
 
@@ -48,5 +49,5 @@ class HomeView(View):
         """
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                return FallingBallView()
+                return GameView()
         return self
