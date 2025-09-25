@@ -11,14 +11,19 @@ from views.view import View
 
 class FallingBallView(View):
     """
-    The main game view that displays the pinball game.
-
-    Contains the game board, ball, and handles game logic and rendering.
+    A demonstration view showing a ball falling under gravity.
+    
+    This view demonstrates basic physics concepts including gravity,
+    velocity, and collision detection with boundaries. The ball falls
+    under the influence of gravity and bounces off the walls.
     """
 
     def __init__(self):
         """
-        Initialize the game view with board, ball, and input handling.
+        Initialize the falling ball demonstration view.
+        
+        Creates a ball, board with boundaries, and sets up the physics
+        simulation for the falling ball demonstration.
         """
 
         self.width, self.height = pygame.display.get_surface().get_size()
@@ -41,23 +46,34 @@ class FallingBallView(View):
 
     def update(self):
         """
-        Update game state
+        Update the falling ball simulation state.
+        
+        Applies gravity to the ball and updates the position of all objects.
+        The ball's velocity is set based on gravity and board inclination.
+        
+        Returns:
+            FallingBallView: Self for view chaining.
         """
+        # Apply gravity force based on board inclination
+        # F = mg, where g is modified by board inclination
+        # This creates the effect of a tilted pinball table
         self.ball.velocity = Vector2(0, GRAVITY * self.board.inclination)
 
+        # Update board and ball physics
+        # This applies the velocity to position (Euler integration)
         self.board.update()
         self.ball.update()
         return self
 
     def handle_event(self, event):
         """
-        Handle pygame events for the game view.
+        Handle pygame events for the falling ball view.
 
         Args:
             event (pygame.event.Event): The event to handle
 
         Returns:
-            GameView: Self for view chaining
+            FallingBallView: Self for view chaining
         """
         return self
 
@@ -73,11 +89,21 @@ class FallingBallView(View):
         self.board.draw(screen)
 
     def create_board_boundaries_group(self):
+        """
+        Create and return a group of wall boundaries for the board.
+        
+        Creates four walls (left, right, top, bottom) that form the
+        boundaries of the playing area for the falling ball demonstration.
+        
+        Returns:
+            pygame.sprite.Group: A sprite group containing all boundary walls.
+        """
         result = pygame.sprite.Group()
 
         wall_width = 10
         wall_length = 600
-        # Create walls
+        
+        # Create walls forming a rectangular boundary
         leftWall = Wall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) - 300,
@@ -112,6 +138,15 @@ class FallingBallView(View):
         return result
 
     def create_board_objects_group(self) -> pygame.sprite.Group:
+        """
+        Create and return a group of interactive objects on the board.
+        
+        Currently includes only the ball, but can be extended to include
+        other interactive objects like pegs, bumpers, etc.
+        
+        Returns:
+            pygame.sprite.Group: A sprite group containing all interactive objects.
+        """
         result = pygame.sprite.Group()
 
         result.add(self.ball)

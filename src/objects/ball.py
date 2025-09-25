@@ -42,3 +42,37 @@ class Ball(Sprite):
         self.rect = self.image.get_rect(center=(x, y))
 
         self.velocity = Vector2(0, 0)
+
+    def update(self):
+        """
+        Update the ball's position based on its velocity.
+
+        This method applies the current velocity to the ball's position,
+        effectively moving the ball according to its physics state.
+        Uses Euler integration: x(t+Δt) = x(t) + v(t)Δt
+        """
+        # Update position using velocity (Euler integration)
+        # This is a simple physics simulation step
+        self.x += self.velocity.x
+        self.y += self.velocity.y
+
+        # Update the pygame rect position for collision detection
+        self.rect.center = (self.x, self.y)
+
+    def draw(self, screen):
+        """
+        Draw the ball on the screen.
+
+        Args:
+            screen (pygame.Surface): The surface to draw the ball on.
+        """
+        screen.blit(self.image, self.rect)
+
+    def set_velocity(self, velocity: Vector2):
+        """
+        Set the ball's velocity.
+
+        Args:
+            velocity (Vector2): The new velocity vector for the ball.
+        """
+        self.velocity = velocity
