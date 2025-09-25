@@ -5,9 +5,10 @@ The walls used to make the board or some obstacles on the board
 from utils.color import Color
 from utils.vector_2d import Vector2D
 import pygame
+from objects.element import Element
 
 
-class Wall:
+class Wall(Element):
     """
     A wall segment that acts as a barrier in the game.
 
@@ -15,6 +16,7 @@ class Wall:
     """
 
     def __init__(self, start: Vector2D, end: Vector2D, width: int = 5):
+        super().__init__(start)
         """
         Initialize a wall segment.
 

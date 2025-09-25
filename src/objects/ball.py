@@ -7,9 +7,10 @@ import pygame
 
 from utils.color import Color
 from utils.vector_2d import Vector2D
+from objects.element import Element
 
 
-class Ball:
+class Ball(Element):
     """
     A ball object with physics properties for the pinball game.
 
@@ -19,6 +20,7 @@ class Ball:
     def __init__(
         self, position: Vector2D, radius, weight=1, bounciness=0.8, color=Color.WHITE
     ):
+        super().__init__(position)
         """
         Initialize a ball with physics properties.
 
@@ -29,7 +31,6 @@ class Ball:
             bounciness (float): Coefficient of restitution (0-1, default: 0.8)
             color (Color): Color of the ball (default: Color.WHITE)
         """
-        self.position = position
         self.radius = radius
         self.weight = weight
         self.bounciness = bounciness
@@ -57,3 +58,23 @@ class Ball:
         Update the ball's position based on its velocity.
         """
         self.position += self.velocity
+
+    def get_velocity(self) -> Vector2D:
+        """
+        Get the current velocity of the ball.
+
+        Returns:
+            Vector2D: The current velocity vector
+        """
+        return self.velocity
+
+    def set_velocity(self, velocity: Vector2D):
+        """
+        Set the ball's velocity, clamping it to the maximum speed.
+
+        Args:
+            velocity (Vector2D): The new velocity vector
+        """
+        if velocity.magnitude() > self.max_speed:
+            velocity = velocity.normalize() * self.max_speed
+        self.velocity = velocity

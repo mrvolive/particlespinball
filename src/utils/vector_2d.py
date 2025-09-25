@@ -61,6 +61,15 @@ class Vector2D:
             return Vector2D(self.x * scalar, self.y * scalar)
         return NotImplemented
 
+    def __str__(self):
+        """
+        String representation of the vector.
+
+        Returns:
+            str: The string representation in the format "(x, y)"
+        """
+        return f"({self.x}, {self.y})"
+
     def magnitude(self):
         """
         Calculate the magnitude (length) of the vector.
@@ -69,3 +78,15 @@ class Vector2D:
             float: The magnitude of the vector
         """
         return sqrt(self.x**2 + self.y**2)
+
+    def normalize(self):
+        """
+        Normalize the vector to have a magnitude of 1.
+
+        Returns:
+            Vector2D: The normalized vector
+        """
+        mag = self.magnitude()
+        if mag == 0:
+            return Vector2D(0, 0)
+        return Vector2D(self.x / mag, self.y / mag)

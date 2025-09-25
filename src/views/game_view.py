@@ -1,10 +1,10 @@
 import pygame
 
-from utils.color import Color
-from utils.vector_2d import Vector2D
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
+from utils.color import Color
+from utils.vector_2d import Vector2D
 from views.view import View
 
 
@@ -33,6 +33,7 @@ class GameView(View):
         }
 
         self.width, self.height = pygame.display.get_surface().get_size()
+        self.clock = pygame.time.Clock()
 
         leftWall = Wall(
             start=Vector2D((self.width // 2) - 200, (self.height // 2) - 300),
@@ -51,10 +52,12 @@ class GameView(View):
             end=Vector2D((self.width // 2) + 200, (self.height // 2) + 300),
         )
         self.board = Board(
-            leftWall=leftWall,
-            rightWall=rightWall,
-            topWall=topWall,
-            bottomWall=bottomWall,
+            boundaries=[
+                leftWall,
+                rightWall,
+                topWall,
+                bottomWall
+            ],
             inclination=1,
         )
 
@@ -68,11 +71,9 @@ class GameView(View):
 
     def update(self):
         """
-        Update the game state, including ball physics.
-
-        Returns:
-            GameView: Self for view chaining
+        Met à jour l'état du jeu, y compris la physique de la balle.
         """
+        self.ball.set_velocity(Vector2D(0, 4))
         self.ball.update()
         return self
 

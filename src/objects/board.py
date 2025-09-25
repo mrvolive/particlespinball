@@ -4,8 +4,9 @@ The board on which everything will take place
 
 import pygame
 
-from utils.color import Color
+from objects.element import Element
 from objects.wall import Wall
+from utils.color import Color
 
 
 class Board:
@@ -16,27 +17,20 @@ class Board:
     """
 
     def __init__(
-        self,
-        leftWall: Wall,
-        rightWall: Wall,
-        topWall: Wall,
-        bottomWall: Wall,
-        inclination,
+            self,
+            objects: list[Element] = [],
+            boundaries: list[Wall] = [],
+            inclination=1.0,
     ):
         """
         Initialize the board with four walls.
 
         Args:
-            leftWall (Wall): Left boundary wall
-            rightWall (Wall): Right boundary wall
-            topWall (Wall): Top boundary wall
-            bottomWall (Wall): Bottom boundary wall
+            objects (list[Element]): list of elements defining the walls.
+            boundaries (list[Wall]): List of four walls defining the board edges
             inclination (float): Board inclination angle
         """
-        self.leftWall = leftWall
-        self.rightWall = rightWall
-        self.topWall = topWall
-        self.bottomWall = bottomWall
+        self.boundaries = boundaries
         self.inclination = inclination
 
     def draw(self, screen: pygame.Surface):
@@ -46,7 +40,8 @@ class Board:
         Args:
             screen (pygame.Surface): The surface to draw on
         """
-        self.leftWall.draw(screen, color=Color.WHITE)
-        self.rightWall.draw(screen, color=Color.WHITE)
-        self.topWall.draw(screen, color=Color.WHITE)
-        self.bottomWall.draw(screen, color=Color.WHITE)
+        for wall in self.boundaries:
+            wall.draw(screen, color=Color.WHITE)
+
+        for obj in self.boundaries:
+            obj.draw(screen)
