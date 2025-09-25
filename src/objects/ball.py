@@ -7,7 +7,7 @@ import pygame
 from pygame import Vector2
 from pygame.sprite import Sprite
 
-from utils.color import Color
+from utils.colors import Color
 
 
 class Ball(Sprite):

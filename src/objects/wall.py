@@ -4,6 +4,7 @@ The walls used to make the board or some obstacles on the board
 
 import pygame
 from pygame.sprite import Sprite
+from utils.colors import Color
 
 
 class Wall(Sprite):
