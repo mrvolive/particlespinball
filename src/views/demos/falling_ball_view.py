@@ -31,7 +31,7 @@ class FallingBallView(View):
 
         self.ball = Ball(
             x=self.width // 2,
-            y=self.height // 2,
+            y=0,
             radius=10,
             mass=1,
             bounciness=0.8,
@@ -102,29 +102,29 @@ class FallingBallView(View):
 
         # Create walls forming a rectangular boundary
         leftWall = Wall(
-            x=(self.width // 2) - 200,
-            y=(self.height // 2) - 300,
+            x=self.width,
+            y=self.height,
             width=wall_width,
             height=wall_length,
             color=Color.WHITE,
         )
         rightWall = Wall(
-            x=(self.width // 2) + 200 - wall_width,
-            y=(self.height // 2) - 300,
+            x=self.width,
+            y=self.height,
             width=wall_width,
             height=wall_length,
             color=Color.WHITE,
         )
         topWall = Wall(
-            x=(self.width // 2) - 200,
-            y=(self.height // 2) - 300,
+            x=self.width,
+            y=self.height,
             width=400,
             height=wall_width,
             color=Color.WHITE,
         )
         bottomWall = Wall(
-            x=(self.width // 2) - 200,
-            y=(self.height // 2) + 300 - wall_width,
+            x=self.width,
+            y=self.height,
             width=400,
             height=wall_width,
             color=Color.WHITE,
