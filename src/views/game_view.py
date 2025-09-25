@@ -1,9 +1,10 @@
 import pygame
+
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
-from views.view import View
 from utils.colors import Color
+from views.view import View
 
 
 class GameView(View):
@@ -39,51 +40,46 @@ class GameView(View):
         self.boundaries_group = pygame.sprite.Group()
         self.objects_group = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
-        
+
         # Create walls
         leftWall = Wall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) - 300,
             width=wall_width,
             height=wall_length,
-            color=Color.WHITE
+            color=Color.WHITE,
         )
         rightWall = Wall(
             x=(self.width // 2) + 200 - wall_width,
             y=(self.height // 2) - 300,
             width=wall_width,
             height=wall_length,
-            color=Color.WHITE
+            color=Color.WHITE,
         )
         topWall = Wall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) - 300,
             width=400,
             height=wall_width,
-            color=Color.WHITE
+            color=Color.WHITE,
         )
         bottomWall = Wall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) + 300 - wall_width,
             width=400,
             height=wall_width,
-            color=Color.WHITE
+            color=Color.WHITE,
         )
 
         self.board = Board(
-            boundaries=[
-                leftWall,
-                rightWall,
-                topWall,
-                bottomWall
-            ],
+            boundaries=[leftWall, rightWall, topWall, bottomWall],
             ball=Ball(
                 x=self.width // 2,
                 y=self.height // 2,
                 radius=8,
                 mass=1.0,
                 bounciness=0.8,
-                color=Color.RED
+                color=Color.RED,
             ),
             inclination=1,
         )

@@ -1,6 +1,7 @@
 import pygame
 from pygame import Vector2
 
+from utils.colors import Color
 from core.world import GRAVITY
 from objects.ball import Ball
 from objects.board import Board
@@ -34,7 +35,7 @@ class FallingBallView(View):
 
         self.board = Board(
             boundaries=self.create_board_boundaries_group(),
-            objects=self.create_board_objects_group(),
+            ball=self.ball,
             inclination=0.5,
         )
 
@@ -42,7 +43,7 @@ class FallingBallView(View):
         """
         Update game state
         """
-        self.ball.set_velocity(Vector2(0, GRAVITY * self.board.inclination))
+        self.ball.velocity = Vector2(0, GRAVITY * self.board.inclination)
 
         self.board.update()
         self.ball.update()
@@ -74,22 +75,36 @@ class FallingBallView(View):
     def create_board_boundaries_group(self):
         result = pygame.sprite.Group()
 
+        wall_width = 10
+        wall_length = 600
         # Create walls
         leftWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) - 300,
+            width=wall_width,
+            height=wall_length,
+            color=Color.WHITE,
         )
         rightWall = Wall(
-            start=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
+            x=(self.width // 2) + 200 - wall_width,
+            y=(self.height // 2) - 300,
+            width=wall_width,
+            height=wall_length,
+            color=Color.WHITE,
         )
         topWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) - 300,
+            width=400,
+            height=wall_width,
+            color=Color.WHITE,
         )
         bottomWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) + 300 - wall_width,
+            width=400,
+            height=wall_width,
+            color=Color.WHITE,
         )
 
         # Add walls to boundaries group
