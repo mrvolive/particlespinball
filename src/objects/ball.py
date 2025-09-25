@@ -4,6 +4,8 @@ Defined by its size, mass and bounciness.
 """
 
 import pygame
+
+from core.world import DT, time_scale
 from pygame import Vector2
 from pygame.sprite import Sprite
 
@@ -101,7 +103,7 @@ class Ball(Sprite):
 
         # Update velocity using Euler integration: v(t+Δt) = v(t) + a(t)Δt
         # Note: Δt is implicitly handled by the frame rate in the main loop
-        self.velocity += acceleration
+        self.velocity += acceleration * DT * time_scale
 
         # Clear forces after applying them
         self.forces.clear()

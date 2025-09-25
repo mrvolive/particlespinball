@@ -41,7 +41,7 @@ class FallingBallView(View):
         self.board = Board(
             boundaries=self.create_board_boundaries_group(),
             balls=self.ball,
-            inclination=0.01,
+            inclination=1,
         )
 
     def update(self):
@@ -55,8 +55,8 @@ class FallingBallView(View):
             FallingBallView: Self for view chaining.
         """
 
-        self.ball.add_force(Vector2(0, GRAVITY))
-        self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination)))
+        self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+        self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
         self.board.update()
         self.ball.update()

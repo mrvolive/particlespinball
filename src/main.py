@@ -2,6 +2,8 @@ import sys
 
 import pygame
 
+
+from core.world import FPS
 from views.home_view import HomeView
 
 
@@ -62,7 +64,7 @@ class App:
             self.view.update()
             self.view.draw(self.screen)
             pygame.display.flip()
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
         pygame.quit()
         sys.exit()
