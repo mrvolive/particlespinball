@@ -3,6 +3,8 @@ The board on which everything will take place
 """
 
 from pygame.sprite import Group, Sprite
+from objects.wall import Wall
+from objects.ball import Ball
 
 
 class Board(Sprite):
@@ -14,8 +16,9 @@ class Board(Sprite):
 
     def __init__(
         self,
-        boundaries=None,
-        ball=None,
+        boundaries: list[Wall] = None,
+        ball: Ball = None,
+        components: list[Sprite] = None,
         inclination=1.0,
     ):
         """
@@ -33,6 +36,7 @@ class Board(Sprite):
 
         self.boundaries: Group = Group(*boundaries)
         self.ball = ball
+        self.components: Group = Group(*components)
         self.inclination = inclination
 
     def draw(self, surface):
