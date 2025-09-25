@@ -5,6 +5,7 @@ The board on which everything will take place
 import pygame
 from pygame.sprite import Sprite
 
+
 class Board(Sprite):
     """
     The game board that contains all walls and defines the play area.
