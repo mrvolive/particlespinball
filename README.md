@@ -65,12 +65,14 @@ python src/main.py
 ## Utilisation
 
 ### Contrôles
-- **ESPACE**: Passer à la vue suivante (depuis l'écran d'accueil)
 - **ÉCHAP**: Quitter l'application
 - **Flèches directionnelles**: Contrôler la balle (dans certaines vues)
 
 ### Navigation
-1. **Écran d'accueil**: Point de départ de l'application
+1. **Écran d'accueil**: Menu principal avec boutons interactifs
+   - **Clic souris**: Sélectionner une vue
+   - **Touche 1**: Accéder à la démo de chute libre
+   - **Touche 2**: Accéder au jeu de flipper
 2. **Vue de chute libre**: Démonstration de la gravité et de la physique de base
 3. **Vue du jeu**: Simulation complète du flipper
 

@@ -309,7 +309,7 @@ Draws the view on the screen.
 
 ### HomeView
 
-The home/landing screen view of the application.
+The home/landing screen view of the application with interactive navigation buttons.
 
 #### Constructor
 ```python
@@ -321,23 +321,46 @@ HomeView(width, height, font)
 - `height` (int): Screen height
 - `font` (pygame.font.Font): Font for rendering text
 
+**Description:**
+Creates an interactive home screen with buttons for navigating to different views. Automatically detects available views and creates clickable buttons with keyboard shortcuts.
+
+#### Properties
+
+##### `available_views` (list)
+List of dictionaries containing view information:
+- `name` (str): Display name for the view
+- `class` (class): View class to instantiate
+- `key` (int): Pygame key code for keyboard shortcut
+
+##### `buttons` (list)
+List of button dictionaries containing:
+- `rect` (Rect): Button rectangle for collision detection
+- `view_info` (dict): Associated view information
+- `hover` (bool): Whether mouse is hovering over the button
+
 #### Methods
 
 ##### `draw(screen)`
-Draws the home view on the screen.
+Draws the home view on the screen with interactive buttons.
 
 **Parameters:**
 - `screen` (pygame.Surface): The surface to draw on
 
 **Returns:** None
 
+**Description:**
+Renders the home screen with title, subtitle, interactive buttons with hover effects, keyboard shortcuts, and user instructions. Buttons change color when hovered over.
+
 ##### `handle_event(event)`
-Handles pygame events for the home view.
+Handles pygame events for the home view including mouse clicks and keyboard shortcuts.
 
 **Parameters:**
 - `event` (pygame.event.Event): The event to handle
 
-**Returns:** View - HomeView or GameView if SPACE is pressed
+**Returns:** View - HomeView or selected view if a button is clicked/key is pressed
+
+**Description:**
+Processes both keyboard shortcuts (1, 2, etc.) and mouse clicks on buttons. Returns the appropriate view instance when a selection is made.
 
 ### GameView
 
