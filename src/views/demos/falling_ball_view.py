@@ -55,7 +55,8 @@ class FallingBallView(View):
             FallingBallView: Self for view chaining.
         """
 
-        self.ball.forces.append(Vector2(0, GRAVITY * self.board.inclination))
+        self.ball.add_force(Vector2(0, GRAVITY))
+        self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination)))
 
         self.board.update()
         self.ball.update()
