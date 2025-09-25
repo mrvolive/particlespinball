@@ -3,6 +3,7 @@ from pygame import Rect
 
 from utils.colors import Color
 from views.demos.falling_ball_view import FallingBallView
+from views.demos.ball_bounce_view import BallBounceView
 from views.game_view import GameView
 from views.view import View
 
@@ -32,6 +33,7 @@ class HomeView(View):
         self.available_views = [
             {'name': 'Pinball Game', 'class': GameView, 'key': pygame.K_1},
             {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_2},
+            {'name': 'Ball Bounce Demo', 'class': BallBounceView, 'key': pygame.K_3},
         ]
 
         # Create button rectangles for interactive navigation
@@ -84,10 +86,11 @@ class HomeView(View):
 
             # Draw button text with hover color
             key_name = pygame.key.name(button['view_info']['key']).upper()
-            text_surface = self.button_font.render(f'{key_name}. {button['view_info']['name']}', True, button_color)
+            text_surface = self.button_font.render(
+                f'{key_name}. {button["view_info"]["name"]}', True, button_color
+            )
             text_rect = text_surface.get_rect(center=button['rect'].center)
             screen.blit(text_surface, text_rect)
-
 
         # Draw user instructions at the bottom of the screen
         instruction_text = 'Click a button or press the corresponding key'
