@@ -6,12 +6,10 @@ import pygame
 from pygame import Vector2
 from pygame.sprite import Sprite
 
-from utils.color import Color
-
 
 class Bumper(Sprite):
     def __init__(
-        self, position: Vector2, radius: int, strength: float = 1.0, color: Color = Color.WHITE
+        self, position: Vector2, radius: int, strength: float = 1.0, color: tuple = (255, 255, 255)
     ):
         super().__init__()
         self.position = position

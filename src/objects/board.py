@@ -6,7 +6,6 @@ import pygame
 from pygame.sprite import Sprite
 
 from objects.wall import Wall
-from utils.color import Color
 
 
 class Board(Sprite):
@@ -42,7 +41,7 @@ class Board(Sprite):
             screen (pygame.Surface): The surface to draw on
         """
         for wall in self.boundaries:
-            wall.draw(screen, color=Color.WHITE)
+            wall.draw(screen, color=(255, 255, 255))
 
         for obj in self.boundaries:
             obj.draw(screen)

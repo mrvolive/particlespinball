@@ -32,7 +32,7 @@ class HomeView(View):
             screen (pygame.Surface): The surface to draw on
         """
         screen.fill((0, 0, 0))
-        text_surface = self.font.render("Home View", True, (255, 255, 255))
+        text_surface = self.font.render('Home View', True, (255, 255, 255))
         text_rect = text_surface.get_rect(center=(self.width // 2, self.height // 2))
         screen.blit(text_surface, text_rect)
 

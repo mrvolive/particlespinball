@@ -1,10 +1,9 @@
 import pygame
-
 from pygame import Vector2
+
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
-from utils.color import Color
 from views.view import View
 
 
@@ -20,16 +19,16 @@ class GameView(View):
         Initialize the game view with board, ball, and input handling.
         """
         self.keys = {
-            "UP": False,
-            "DOWN": False,
-            "LEFT": False,
-            "RIGHT": False,
-            "ZOOM_IN": False,
-            "ZOOM_OUT": False,
-            "MOVE_LEFT": False,
-            "MOVE_RIGHT": False,
-            "MOVE_UP": False,
-            "MOVE_DOWN": False,
+            'UP': False,
+            'DOWN': False,
+            'LEFT': False,
+            'RIGHT': False,
+            'ZOOM_IN': False,
+            'ZOOM_OUT': False,
+            'MOVE_LEFT': False,
+            'MOVE_RIGHT': False,
+            'MOVE_UP': False,
+            'MOVE_DOWN': False,
         }
 
         self.width, self.height = pygame.display.get_surface().get_size()
@@ -52,12 +51,7 @@ class GameView(View):
             end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
         )
         self.board = Board(
-            boundaries=[
-                leftWall,
-                rightWall,
-                topWall,
-                bottomWall
-            ],
+            boundaries=[leftWall, rightWall, topWall, bottomWall],
             inclination=1,
         )
 
@@ -66,7 +60,7 @@ class GameView(View):
             radius=10,
             weight=1,
             bounciness=0.8,
-            color=Color.RED,
+            color=(255, 0, 0),
         )
 
     def update(self):
@@ -96,7 +90,7 @@ class GameView(View):
         Args:
             screen (pygame.Surface): The surface to draw on
         """
-        screen.fill(Color.BLACK)
+        screen.fill((0, 0, 0))
 
         self.board.draw(screen)
 

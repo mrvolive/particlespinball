@@ -6,8 +6,6 @@ import pygame
 from pygame import Vector2
 from pygame.sprite import Sprite
 
-from utils.color import Color
-
 
 class Wall(Sprite):
     """
@@ -30,7 +28,7 @@ class Wall(Sprite):
         self.end = end
         self.width = width
 
-    def draw(self, screen: pygame.Surface, color: Color = Color.WHITE):
+    def draw(self, screen: pygame.Surface, color: tuple = (255, 255, 255)):
         """
         Draw the wall as a line on the screen.
 

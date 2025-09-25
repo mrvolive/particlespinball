@@ -4,10 +4,8 @@ Defined by its size, mass and bounciness.
 """
 
 import pygame
-from pygame.sprite import Sprite
 from pygame import Vector2
-
-from utils.color import Color
+from pygame.sprite import Sprite
 
 
 class Ball(Sprite):
@@ -17,7 +15,7 @@ class Ball(Sprite):
     The ball has position, velocity, and physical properties like mass and bounciness.
     """
 
-    def __init__(self, position: Vector2, radius, weight=1, bounciness=0.8, color=Color.WHITE):
+    def __init__(self, position: Vector2, radius, weight=1, bounciness=0.8, color=(255, 255, 255)):
         super().__init__()
         """
         Initialize a ball with physics properties.
