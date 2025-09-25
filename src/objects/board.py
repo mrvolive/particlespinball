@@ -66,7 +66,7 @@ class Board(Sprite):
         """
         # Update the ball physics and position
         # This handles the main physics simulation for the ball
-        self.ball.update()
+        self.balls.update()
 
         # Update all other components (pegs, bumpers, etc.)
         # Most components are static, but some may have animations
