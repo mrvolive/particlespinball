@@ -1,5 +1,6 @@
 import pygame
 
+from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
 from utils.color import Color
@@ -31,7 +32,6 @@ class GameView(View):
         }
 
         self.width, self.height = pygame.display.get_surface().get_size()
-        self.clock = pygame.time.Clock()
 
         wall_width = 10
         wall_length = 600
@@ -64,6 +64,7 @@ class GameView(View):
             height=wall_width,
             color=Color.WHITE
         )
+
         self.board = Board(
             boundaries=[
                 leftWall,
@@ -71,6 +72,14 @@ class GameView(View):
                 topWall,
                 bottomWall
             ],
+            ball=Ball(
+                x=self.width // 2,
+                y=self.height // 2,
+                radius=8,
+                mass=1.0,
+                bounciness=0.8,
+                color=Color.RED
+            ),
             inclination=1,
         )
 

@@ -17,6 +17,7 @@ class Board(Sprite):
     def __init__(
             self,
             boundaries=None,
+            ball=None,
             inclination=1.0,
     ):
         """
@@ -29,7 +30,11 @@ class Board(Sprite):
         super().__init__()
         boundaries = boundaries if boundaries is not None else []
 
+        if ball is None:
+            raise ValueError("A ball instance must be provided to the Board.")
+
         self.boundaries: Group = Group(*boundaries)
+        self.ball = ball
         self.inclination = inclination
 
     def draw(self, surface):
@@ -40,3 +45,5 @@ class Board(Sprite):
             surface (pygame.Surface): The surface to draw the board on.
         """
         self.boundaries.draw(surface)
+        surface.blit(self.ball.image, self.ball.rect)
+

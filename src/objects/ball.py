@@ -4,8 +4,8 @@ Defined by its size, mass and bounciness.
 """
 
 import pygame
-from pygame.sprite import Sprite
 from pygame import Vector2
+from pygame.sprite import Sprite
 
 from utils.color import Color
 
@@ -17,63 +17,28 @@ class Ball(Sprite):
     The ball has position, velocity, and physical properties like mass and bounciness.
     """
 
-    def __init__(self, position: Vector2, radius, weight=1, bounciness=0.8, color=Color.WHITE):
-        super().__init__()
+    def __init__(self, x=0, y=0, radius=10, mass=1.0, bounciness=0.8, color=Color.RED):
         """
-        Initialize a ball with physics properties.
+        Initialize the ball with position, size, mass, and bounciness.
 
         Args:
-            position (Vector2): Initial position of the ball
-            radius (int): Radius of the ball in pixels
-            weight (float): Mass of the ball (default: 1)
-            bounciness (float): Coefficient of restitution (0-1, default: 0.8)
-            color (Color): Color of the ball (default: Color.WHITE)
+            x (float): Initial x position of the ball
+            y (float): Initial y position of the ball
+            radius (int): Radius of the ball
+            mass (float): Mass of the ball in kilograms
+            bounciness (float): Coefficient of restitution (0 to 1)
+            color (tuple): RGB color of the ball
         """
-        self.position = position
+        super().__init__()
+        self.x = x
+        self.y = y
         self.radius = radius
-        self.weight = weight
+        self.mass = mass
         self.bounciness = bounciness
         self.color = color
 
-        self.max_speed = 20
+        self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, color, (radius, radius), radius)
+        self.rect = self.image.get_rect(center=(x, y))
+
         self.velocity = Vector2(0, 0)
-
-    def draw(self, screen: pygame.Surface):
-        """
-        Draw the ball on the screen.
-
-        Args:
-            screen (pygame.Surface): The surface to draw on
-        """
-        pygame.draw.circle(
-            screen,
-            self.color,
-            (int(self.position.x), int(self.position.y)),
-            self.radius,
-        )
-
-    def update(self):
-        """
-        Update the ball's position based on its velocity.
-        """
-        self.position += self.velocity
-
-    def get_velocity(self) -> Vector2:
-        """
-        Get the current velocity of the ball.
-
-        Returns:
-            Vector2: The current velocity vector
-        """
-        return self.velocity
-
-    def set_velocity(self, velocity: Vector2):
-        """
-        Set the ball's velocity, clamping it to the maximum speed.
-
-        Args:
-            velocity (Vector2): The new velocity vector
-        """
-        if velocity.magnitude() > self.max_speed:
-            velocity = velocity.normalize() * self.max_speed
-        self.velocity = velocity
