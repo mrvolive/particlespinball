@@ -3,6 +3,7 @@ from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
 from views.view import View
+from utils.colors import Color
 
 
 class GameView(View):
