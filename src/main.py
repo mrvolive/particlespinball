@@ -54,6 +54,8 @@ class App:
                     event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
                 ):
                     running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
+                    self.view = HomeView(self.width, self.height, self.font)
                 else:
                     self.view = self.view.handle_event(event)
 

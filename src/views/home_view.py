@@ -30,8 +30,8 @@ class HomeView(View):
 
         # Define available views with their display names and keyboard shortcuts
         self.available_views = [
-            {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_1},
-            {'name': 'Pinball Game', 'class': GameView, 'key': pygame.K_2},
+            {'name': 'Pinball Game', 'class': GameView, 'key': pygame.K_1},
+            {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_2},
         ]
 
         # Create button rectangles for interactive navigation
@@ -83,20 +83,11 @@ class HomeView(View):
             pygame.draw.rect(screen, button_color, button['rect'], 2)
 
             # Draw button text with hover color
-            text_surface = self.button_font.render(button['view_info']['name'], True, button_color)
+            key_name = pygame.key.name(button['view_info']['key']).upper()
+            text_surface = self.button_font.render(f'{key_name}. {button['view_info']['name']}', True, button_color)
             text_rect = text_surface.get_rect(center=button['rect'].center)
             screen.blit(text_surface, text_rect)
 
-            # Draw keyboard shortcut below each button
-            key_name = pygame.key.name(button['view_info']['key']).upper()
-            shortcut_text = f'Press {key_name}'
-            shortcut_surface = pygame.font.SysFont('Arial', 16).render(
-                shortcut_text, True, Color.GREY
-            )
-            shortcut_rect = shortcut_surface.get_rect(
-                centerx=button['rect'].centerx, top=button['rect'].bottom + 5
-            )
-            screen.blit(shortcut_surface, shortcut_rect)
 
         # Draw user instructions at the bottom of the screen
         instruction_text = 'Click a button or press the corresponding key'
