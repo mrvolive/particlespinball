@@ -24,9 +24,10 @@ class FallingBallView(View):
         self.clock = pygame.time.Clock()
 
         self.ball = Ball(
-            position=Vector2(self.width // 2, self.height // 2),
+            x=self.width // 2,
+            y=self.height // 2,
             radius=10,
-            weight=1,
+            mass=1,
             bounciness=0.8,
             color=(255, 0, 0),
         )
