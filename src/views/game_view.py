@@ -10,7 +10,7 @@ from views.view import View
 class GameView(View):
     """
     The main game view for the complete pinball game experience.
-    
+
     This view manages the full pinball game including the board, ball,
     boundaries, and game logic. It handles user input and renders
     the complete game state.
@@ -19,7 +19,7 @@ class GameView(View):
     def __init__(self):
         """
         Initialize the game view with board, ball, and input handling.
-        
+
         Sets up the game board with boundary walls, creates the ball,
         initializes input key states, and prepares sprite groups for
         efficient rendering and collision detection.
@@ -93,10 +93,10 @@ class GameView(View):
     def update(self):
         """
         Update the game state including ball physics.
-        
+
         This method handles the game logic updates including physics
         calculations, collision detection, and game state management.
-        
+
         Returns:
             GameView: Self for view chaining.
         """

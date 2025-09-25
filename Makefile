@@ -3,7 +3,7 @@ PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
 MAIN_FILE = main.py
 
-.PHONY: requirements clean install reinstall run
+.PHONY: requirements clean install reinstall run lint format
 
 # Rules
 $(VENV):
@@ -29,4 +29,12 @@ reinstall: clean install
 
 run:
 	@$(PYTHON) $(MAIN_FILE)
+
+lint:
+	@$(PIP) install ruff
+	@$(VENV)/bin/ruff check src/
+
+format:
+	@$(PIP) install ruff
+	@$(VENV)/bin/ruff format src/
 

@@ -54,13 +54,9 @@ class FallingBallView(View):
         Returns:
             FallingBallView: Self for view chaining.
         """
-        # Apply gravity force based on board inclination
-        # F = mg, where g is modified by board inclination
-        # This creates the effect of a tilted pinball table
+
         self.ball.velocity = Vector2(0, GRAVITY * self.board.inclination)
 
-        # Update board and ball physics
-        # This applies the velocity to position (Euler integration)
         self.board.update()
         self.ball.update()
         return self
