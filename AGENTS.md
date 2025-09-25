@@ -8,7 +8,7 @@
 
 ## Code Style
 - **Imports**: Use absolute imports from project root (e.g., `from utils.color import Color`)
-- **Types**: Use type hints consistently (e.g., `position: Vector2D`, `screen: pygame.Surface`)
+- **Types**: Use type hints consistently (e.g., `position: Vector2`, `screen: pygame.Surface`)
 - **Naming**: PascalCase for classes, snake_case for variables and methods
 - **Docstrings**: Use triple quotes for class descriptions
 - **Constants**: UPPER_CASE for constants (e.g., `GRAVITY = 9.81`)

@@ -1,10 +1,10 @@
 import pygame
 
+from pygame import Vector2
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
 from utils.color import Color
-from utils.vector_2d import Vector2D
 from views.view import View
 
 
@@ -36,20 +36,20 @@ class GameView(View):
         self.clock = pygame.time.Clock()
 
         leftWall = Wall(
-            start=Vector2D((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2D((self.width // 2) - 200, (self.height // 2) + 300),
+            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
+            end=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
         )
         rightWall = Wall(
-            start=Vector2D((self.width // 2) + 200, (self.height // 2) - 300),
-            end=Vector2D((self.width // 2) + 200, (self.height // 2) + 300),
+            start=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
+            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
         )
         topWall = Wall(
-            start=Vector2D((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2D((self.width // 2) + 200, (self.height // 2) - 300),
+            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
+            end=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
         )
         bottomWall = Wall(
-            start=Vector2D((self.width // 2) - 200, (self.height // 2) + 300),
-            end=Vector2D((self.width // 2) + 200, (self.height // 2) + 300),
+            start=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
+            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
         )
         self.board = Board(
             boundaries=[
@@ -62,7 +62,7 @@ class GameView(View):
         )
 
         self.ball = Ball(
-            position=Vector2D(self.width // 2, self.height // 2),
+            position=Vector2(self.width // 2, self.height // 2),
             radius=10,
             weight=1,
             bounciness=0.8,
@@ -73,7 +73,7 @@ class GameView(View):
         """
         Met à jour l'état du jeu, y compris la physique de la balle.
         """
-        self.ball.set_velocity(Vector2D(0, 4))
+        self.ball.set_velocity(Vector2(0, 4))
         self.ball.update()
         return self
 

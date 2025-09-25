@@ -2,15 +2,17 @@
 A small round object that act as a passive obstacle
 """
 
-from objects.element import Element
-from utils.vector_2d import Vector2D
 import pygame
+from pygame import Vector2
+from pygame.sprite import Sprite
+
 from utils.color import Color
 
 
-class Peg(Element):
-    def __init__(self, position: Vector2D, radius: int, color: Color = Color.WHITE):
-        super().__init__(position)
+class Peg(Sprite):
+    def __init__(self, position: Vector2, radius: int, color: Color = Color.WHITE):
+        super().__init__()
+        self.position = position
         self.radius = radius
         self.color = color
 

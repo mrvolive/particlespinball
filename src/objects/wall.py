@@ -2,27 +2,28 @@
 The walls used to make the board or some obstacles on the board
 """
 
-from utils.color import Color
-from utils.vector_2d import Vector2D
 import pygame
-from objects.element import Element
+from pygame import Vector2
+from pygame.sprite import Sprite
+
+from utils.color import Color
 
 
-class Wall(Element):
+class Wall(Sprite):
     """
     A wall segment that acts as a barrier in the game.
 
     Walls are defined by a start and end point and have a width.
     """
 
-    def __init__(self, start: Vector2D, end: Vector2D, width: int = 5):
-        super().__init__(start)
+    def __init__(self, start: Vector2, end: Vector2, width: int = 5):
+        super().__init__()
         """
         Initialize a wall segment.
 
         Args:
-            start (Vector2D): Starting point of the wall
-            end (Vector2D): Ending point of the wall
+            start (Vector2): Starting point of the wall
+            end (Vector2): Ending point of the wall
             width (int): Thickness of the wall in pixels (default: 5)
         """
         self.start = start

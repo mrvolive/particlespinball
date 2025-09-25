@@ -34,8 +34,8 @@ class App:
             self.screen = pygame.display.set_mode((width, height))
 
         self.width, self.height = self.screen.get_size()
-        pygame.display.set_caption("View Switcher")
-        self.font = pygame.font.SysFont("Arial", 36)
+        pygame.display.set_caption('View Switcher')
+        self.font = pygame.font.SysFont('Arial', 36)
         self.clock = pygame.time.Clock()
 
         self.view = HomeView(self.width, self.height, self.font)
@@ -50,9 +50,7 @@ class App:
         running = True
         while running:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT or (
-                    event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
-                ):
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     running = False
                 else:
                     self.view = self.view.handle_event(event)
@@ -66,7 +64,7 @@ class App:
         sys.exit()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     filename = sys.argv[1] if len(sys.argv) > 1 else None
     app = App(filename=filename)
     app.run()
