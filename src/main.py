@@ -6,7 +6,22 @@ from views.home_view import HomeView
 
 
 class App:
+    """
+    Main application class for the particle pinball game.
+
+    Handles pygame initialization, window management, and the main game loop.
+    """
+
     def __init__(self, width=800, height=600, fullscreen=True, filename=None):
+        """
+        Initialize the application.
+
+        Args:
+            width (int): Window width (default: 800)
+            height (int): Window height (default: 600)
+            fullscreen (bool): Whether to start in fullscreen mode (default: True)
+            filename (str): Optional filename parameter (default: None)
+        """
         self.filename = filename
 
         pygame.init()
@@ -26,6 +41,12 @@ class App:
         self.view = HomeView(self.width, self.height, self.font)
 
     def run(self):
+        """
+        Run the main application loop.
+
+        Handles events, updates views, and renders the screen at 60 FPS.
+        Exits on QUIT event or ESC key press.
+        """
         running = True
         while running:
             for event in pygame.event.get():
