@@ -34,6 +34,12 @@ class GameView(View):
         self.width, self.height = pygame.display.get_surface().get_size()
         self.clock = pygame.time.Clock()
 
+        # Create sprite groups
+        self.boundaries_group = pygame.sprite.Group()
+        self.objects_group = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
+        
+        # Create walls
         leftWall = Wall(
             start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
             end=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
@@ -50,8 +56,13 @@ class GameView(View):
             start=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
             end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
         )
+        
+        # Add walls to boundaries group
+        self.boundaries_group.add(leftWall, rightWall, topWall, bottomWall)
+        
         self.board = Board(
-            boundaries=[leftWall, rightWall, topWall, bottomWall],
+            boundaries=self.boundaries_group,
+            objects=self.objects_group,
             inclination=1,
         )
 
@@ -62,13 +73,17 @@ class GameView(View):
             bounciness=0.8,
             color=(255, 0, 0),
         )
+        
+        # Add ball to objects group and all sprites group
+        self.objects_group.add(self.ball)
+        self.all_sprites.add(self.ball)
 
     def update(self):
         """
         Met à jour l'état du jeu, y compris la physique de la balle.
         """
         self.ball.set_velocity(Vector2(0, 4))
-        self.ball.update()
+        self.all_sprites.update()
         return self
 
     def handle_event(self, event):
@@ -93,5 +108,3 @@ class GameView(View):
         screen.fill((0, 0, 0))
 
         self.board.draw(screen)
-
-        self.ball.draw(screen)
