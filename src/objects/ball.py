@@ -52,6 +52,7 @@ class Ball(Sprite):
         effectively moving the ball according to its physics state.
         Uses Euler integration: x(t+Δt) = x(t) + v(t)Δt
         """
+        self.apply_forces()
         # Update position using velocity (Euler integration)
         # This is a simple physics simulation step
         self.x += self.velocity.x
