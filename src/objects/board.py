@@ -2,11 +2,9 @@
 The board on which everything will take place
 """
 
-import pygame
-from pygame.sprite import Sprite
+from pygame.sprite import Sprite, Group
 
 from objects.wall import Wall
-from utils.color import Color
 
 
 class Board(Sprite):
@@ -17,32 +15,28 @@ class Board(Sprite):
     """
 
     def __init__(
-        self,
-        objects: list[pygame.sprite.Sprite] = [],
-        boundaries: list[Wall] = [],
-        inclination=1.0,
+            self,
+            boundaries=None,
+            inclination=1.0,
     ):
         """
         Initialize the board with four walls.
 
         Args:
-            objects (list[Element]): list of elements defining the walls.
             boundaries (list[Wall]): List of four walls defining the board edges
             inclination (float): Board inclination angle
         """
         super().__init__()
-        self.boundaries = boundaries
+        boundaries = boundaries if boundaries is not None else []
+
+        self.boundaries: Group = Group(*boundaries)
         self.inclination = inclination
 
-    def draw(self, screen: pygame.Surface):
+    def draw(self, surface):
         """
-        Draw all four walls of the board on the screen.
+        Draw the board and its boundaries on the given surface.
 
         Args:
-            screen (pygame.Surface): The surface to draw on
+            surface (pygame.Surface): The surface to draw the board on.
         """
-        for wall in self.boundaries:
-            wall.draw(screen, color=Color.WHITE)
-
-        for obj in self.boundaries:
-            obj.draw(screen)
+        self.boundaries.draw(surface)
