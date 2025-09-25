@@ -72,20 +72,20 @@ class Board(Sprite):
         # Most components are static, but some may have animations
         self.components.update()
 
-    def add_component(self, component):
+    def add_components(self, components: list[Sprite]):
         """
         Add a component to the board.
 
         Args:
-            component (Sprite): The component to add to the board.
+            components (list[Sprite]): The component to add to the board.
         """
-        self.components.add(component)
+        self.components.add(*components)
 
-    def remove_component(self, component):
+    def remove_components(self, components: list[Sprite]):
         """
         Remove a component from the board.
 
         Args:
-            component (Sprite): The component to remove from the board.
+            components (list[Sprite]): The component to remove from the board.
         """
-        self.components.remove(component)
+        self.components.remove(*components)
