@@ -1,6 +1,4 @@
 import pygame
-from pygame import Vector2
-
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
@@ -32,7 +30,9 @@ class GameView(View):
         }
 
         self.width, self.height = pygame.display.get_surface().get_size()
-        self.clock = pygame.time.Clock()
+
+        wall_width = 10
+        wall_length = 600
 
         # Create sprite groups
         self.boundaries_group = pygame.sprite.Group()
@@ -41,49 +41,58 @@ class GameView(View):
         
         # Create walls
         leftWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) - 300,
+            width=wall_width,
+            height=wall_length,
+            color=Color.WHITE
         )
         rightWall = Wall(
-            start=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
+            x=(self.width // 2) + 200 - wall_width,
+            y=(self.height // 2) - 300,
+            width=wall_width,
+            height=wall_length,
+            color=Color.WHITE
         )
         topWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) - 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) - 300),
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) - 300,
+            width=400,
+            height=wall_width,
+            color=Color.WHITE
         )
         bottomWall = Wall(
-            start=Vector2((self.width // 2) - 200, (self.height // 2) + 300),
-            end=Vector2((self.width // 2) + 200, (self.height // 2) + 300),
-        )
-        
-        # Add walls to boundaries group
-        self.boundaries_group.add(leftWall, rightWall, topWall, bottomWall)
-        
-        self.board = Board(
-            boundaries=self.boundaries_group,
-            objects=self.objects_group,
-            inclination=1,
+            x=(self.width // 2) - 200,
+            y=(self.height // 2) + 300 - wall_width,
+            width=400,
+            height=wall_width,
+            color=Color.WHITE
         )
 
-        self.ball = Ball(
-            position=Vector2(self.width // 2, self.height // 2),
-            radius=10,
-            weight=1,
-            bounciness=0.8,
-            color=(255, 0, 0),
+        self.board = Board(
+            boundaries=[
+                leftWall,
+                rightWall,
+                topWall,
+                bottomWall
+            ],
+            ball=Ball(
+                x=self.width // 2,
+                y=self.height // 2,
+                radius=8,
+                mass=1.0,
+                bounciness=0.8,
+                color=Color.RED
+            ),
+            inclination=1,
         )
-        
-        # Add ball to objects group and all sprites group
-        self.objects_group.add(self.ball)
-        self.all_sprites.add(self.ball)
 
     def update(self):
         """
         Met à jour l'état du jeu, y compris la physique de la balle.
         """
-        self.ball.set_velocity(Vector2(0, 4))
-        self.all_sprites.update()
+        # self.ball.set_velocity(Vector2(0, 4))
+        # self.ball.update()
         return self
 
     def handle_event(self, event):
