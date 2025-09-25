@@ -40,7 +40,7 @@ class FallingBallView(View):
 
         self.board = Board(
             boundaries=self.create_board_boundaries_group(),
-            ball=self.ball,
+            balls=self.ball,
             inclination=0.5,
         )
 

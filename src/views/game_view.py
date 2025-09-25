@@ -2,6 +2,7 @@ import pygame
 
 from objects.ball import Ball
 from objects.board import Board
+from objects.peg import Peg
 from objects.wall import Wall
 from utils.colors import Color
 from views.view import View
@@ -77,16 +78,31 @@ class GameView(View):
             color=Color.WHITE,
         )
 
+        # Place les pegs à l'intérieur du plateau
+        peg1 = Peg(
+            x=(self.width // 2),
+            y=(self.height // 2) - 100,
+            radius=20, color=Color.GREEN
+        )
+        peg2 = Peg(
+            x=(self.width // 2),
+            y=(self.height // 2) + 100,
+            radius=20, color=Color.GREEN
+        )
+
         self.board = Board(
             boundaries=[leftWall, rightWall, topWall, bottomWall],
-            ball=Ball(
-                x=self.width // 2,
-                y=self.height // 2,
-                radius=8,
-                mass=1.0,
-                bounciness=0.8,
-                color=Color.RED,
-            ),
+            objects=[peg1, peg2],
+            balls=[
+                Ball(
+                    x=self.width // 2,
+                    y=self.height // 2,
+                    radius=8,
+                    mass=1.0,
+                    bounciness=0.8,
+                    color=Color.RED,
+                ),
+            ],
             inclination=1,
         )
 

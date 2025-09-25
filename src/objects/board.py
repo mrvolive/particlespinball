@@ -18,7 +18,7 @@ class Board(Sprite):
     def __init__(
         self,
         boundaries: list[Wall] = None,
-        ball: Ball = None,
+        balls: list[Ball] = None,
         components: list[Sprite] = None,
         inclination=1.0,
     ):
@@ -31,13 +31,19 @@ class Board(Sprite):
         """
         super().__init__()
         boundaries = boundaries if boundaries is not None else []
+        components = components if components is not None else []
 
-        if ball is None:
+        # Accepte balls comme liste ou objet unique
+        if balls is None:
+            raise ValueError('A ball instance must be provided to the Board.')
+        if not isinstance(balls, (list, tuple)):
+            balls = [balls]
+        if len(balls) == 0:
             raise ValueError('A ball instance must be provided to the Board.')
 
         self.boundaries: Group = Group(*boundaries)
-        self.ball = ball
         self.components: Group = Group(*components)
+        self.balls: Group = Group(*balls)
         self.inclination = inclination
 
     def draw(self, surface):
@@ -48,7 +54,8 @@ class Board(Sprite):
             surface (pygame.Surface): The surface to draw the board on.
         """
         self.boundaries.draw(surface)
-        surface.blit(self.ball.image, self.ball.rect)
+        self.components.draw(surface)
+        self.balls.draw(surface)
 
     def update(self):
         """
