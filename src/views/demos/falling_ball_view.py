@@ -26,7 +26,7 @@ class FallingBallView(View):
         simulation for the falling ball demonstration.
         """
         super(FallingBallView, self).__init__(screen)
-        self.width, self.height = pygame.display.get_surface().get_size()
+        self.width, self.height = self.screen.get_size()
         self.clock = pygame.time.Clock()
 
         self.ball = Ball(
@@ -60,18 +60,6 @@ class FallingBallView(View):
 
         self.board.update()
         self.ball.update()
-
-    def handle_event(self, event):
-        """
-        Handle pygame events for the falling ball view.
-
-        Args:
-            event (pygame.event.Event): The event to handle
-
-        Returns:
-            FallingBallView: Self for view chaining
-        """
-        return self
 
     def draw(self):
         """

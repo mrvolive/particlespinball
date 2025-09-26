@@ -43,17 +43,6 @@ class BallBounceView(View):
         self.board.update()
         self.ball.update()
 
-    def handle_event(self, event):
-        """
-        Handle pygame events for the falling ball view.
-
-        Args:
-            event (pygame.event.Event): The event to handle
-
-        Returns:
-            BallBounceView: Self for view chaining
-        """
-        return self
 
     def draw(self):
         """

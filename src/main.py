@@ -39,7 +39,7 @@ class App:
         self.font = pygame.font.SysFont('Arial', 36)
         self.clock = pygame.time.Clock()
 
-        self.view = HomeView(self.width, self.height, self.font)
+        self.view = HomeView(self.screen, self.width, self.height, self.font)
 
     def run(self):
         """
@@ -61,7 +61,7 @@ class App:
                     self.view = self.view.handle_event(event)
 
             self.view.update()
-            self.view.draw(self.screen)
+            self.view.draw()
             pygame.display.flip()
             self.clock.tick(FPS)
 
