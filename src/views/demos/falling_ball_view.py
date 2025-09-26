@@ -1,4 +1,4 @@
-import pygame
+from pygame.time import Clock
 from pygame import Vector2
 
 from core.world import GRAVITY
@@ -27,7 +27,7 @@ class FallingBallView(View):
         """
         super(FallingBallView, self).__init__(screen)
         self.width, self.height = self.screen.get_size()
-        self.clock = pygame.time.Clock()
+        self.clock = Clock()
 
         self.ball = Ball(
             x=self.width // 2,
