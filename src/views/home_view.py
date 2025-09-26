@@ -121,6 +121,6 @@ class HomeView(View):
                 mouse_pos = pygame.mouse.get_pos()
                 for button in self.buttons:
                     if button['rect'].collidepoint(mouse_pos):
-                        return button['view_info']['class']()
+                        return button['view_info']['class'](self.screen)
 
         return self
