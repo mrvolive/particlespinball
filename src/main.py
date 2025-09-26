@@ -2,6 +2,7 @@ import sys
 
 import pygame
 
+from typing import Optional
 from core.world import FPS
 from views.home_view import HomeView
 
@@ -13,7 +14,12 @@ class App:
     Handles pygame initialization, window management, and the main game loop.
     """
 
-    def __init__(self, width=800, height=600, fullscreen=True, filename=None):
+    def __init__(self, 
+                 width: int = 800,
+                 height: int = 600,
+                 fullscreen: bool = True, 
+                 filename: Optional[str] = None
+                 ):
         """
         Initialize the application.
 
@@ -21,7 +27,7 @@ class App:
             width (int): Window width (default: 800)
             height (int): Window height (default: 600)
             fullscreen (bool): Whether to start in fullscreen mode (default: True)
-            filename (str): Optional filename parameter (default: None)
+            filename (Optional[str]): Optional filename parameter (default: None)
         """
         self.filename = filename
 
