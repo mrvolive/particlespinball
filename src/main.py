@@ -2,7 +2,6 @@ import sys
 
 import pygame
 
-
 from core.world import FPS
 from views.home_view import HomeView
 
@@ -57,7 +56,7 @@ class App:
                 ):
                     running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
-                    self.view = HomeView(self.width, self.height, self.font)
+                    self.view = HomeView(self.screen, self.width, self.height, self.font)
                 else:
                     self.view = self.view.handle_event(event)
 

@@ -2,8 +2,8 @@ import pygame
 from pygame import Rect
 
 from utils.colors import Color
-from views.demos.falling_ball_view import FallingBallView
 from views.demos.ball_bounce_view import BallBounceView
+from views.demos.falling_ball_view import FallingBallView
 from views.game_view import GameView
 from views.view import View
 
@@ -16,15 +16,17 @@ class HomeView(View):
     Users can click on buttons or use keyboard shortcuts to select different demos.
     """
 
-    def __init__(self, width, height, font):
+    def __init__(self, screen, width, height, font):
         """
         Initialize the home view.
 
         Args:
+            screen (pygame.Surface): The main display surface
             width (int): Screen width
             height (int): Screen height
             font (pygame.font.Font): Font for rendering text
         """
+        super(HomeView, self).__init__(screen)
         self.width = width
         self.height = height
         self.font = font
@@ -52,24 +54,21 @@ class HomeView(View):
         # Create a smaller font for button text and shortcuts
         self.button_font = pygame.font.SysFont('Arial', 24)
 
-    def draw(self, screen):
+    def draw(self):
         """
         Draw the home view on the screen.
-
-        Args:
-            screen (pygame.Surface): The surface to draw on
         """
-        screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
 
         # Draw title
         title_surface = self.font.render('Particle Pinball', True, Color.WHITE)
         title_rect = title_surface.get_rect(center=(self.width // 2, 100))
-        screen.blit(title_surface, title_rect)
+        self.screen.blit(title_surface, title_rect)
 
         # Draw subtitle
         subtitle_surface = self.button_font.render('Choose a demo:', True, Color.GREY)
         subtitle_rect = subtitle_surface.get_rect(center=(self.width // 2, 150))
-        screen.blit(subtitle_surface, subtitle_rect)
+        self.screen.blit(subtitle_surface, subtitle_rect)
 
         # Draw interactive buttons with hover effects
         mouse_pos = pygame.mouse.get_pos()
@@ -82,7 +81,7 @@ class HomeView(View):
             button_color = Color.YELLOW if button['hover'] else Color.WHITE
 
             # Draw button rectangle outline
-            pygame.draw.rect(screen, button_color, button['rect'], 2)
+            pygame.draw.rect(self.screen, button_color, button['rect'], 2)
 
             # Draw button text with hover color
             key_name = pygame.key.name(button['view_info']['key']).upper()
@@ -90,7 +89,7 @@ class HomeView(View):
                 f'{key_name}. {button["view_info"]["name"]}', True, button_color
             )
             text_rect = text_surface.get_rect(center=button['rect'].center)
-            screen.blit(text_surface, text_rect)
+            self.screen.blit(text_surface, text_rect)
 
         # Draw user instructions at the bottom of the screen
         instruction_text = 'Click a button or press the corresponding key'
@@ -98,7 +97,7 @@ class HomeView(View):
             instruction_text, True, Color.GREY
         )
         instruction_rect = instruction_surface.get_rect(center=(self.width // 2, self.height - 50))
-        screen.blit(instruction_surface, instruction_rect)
+        self.screen.blit(instruction_surface, instruction_rect)
 
     def handle_event(self, event):
         """
@@ -114,7 +113,7 @@ class HomeView(View):
             # Check for keyboard shortcuts to navigate to different views
             for button in self.buttons:
                 if event.key == button['view_info']['key']:
-                    return button['view_info']['class']()
+                    return button['view_info']['class'](self.screen)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left mouse button click

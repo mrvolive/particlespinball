@@ -7,6 +7,14 @@ class View:
 
     Provides a common interface for handling events, updating state, and drawing.
     """
+    def __init__(self, screen):
+        """
+        Initialize the view with a reference to the main screen.
+
+        Args:
+            screen (pygame.Surface): The main display surface
+        """
+        self.screen = screen
 
     def handle_event(self, event: Event):
         """
@@ -26,11 +34,8 @@ class View:
         """
         pass
 
-    def draw(self, screen):
+    def draw(self):
         """
         Draw the view on the screen.
-
-        Args:
-            screen (pygame.Surface): The surface to draw on
         """
         pass

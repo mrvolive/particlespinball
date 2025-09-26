@@ -17,7 +17,7 @@ class GameView(View):
     the complete game state.
     """
 
-    def __init__(self):
+    def __init__(self, screen):
         """
         Initialize the game view with board, ball, and input handling.
 
@@ -25,6 +25,7 @@ class GameView(View):
         initializes input key states, and prepares sprite groups for
         efficient rendering and collision detection.
         """
+        super(GameView, self).__init__(screen)
         self.keys = {
             'UP': False,
             'DOWN': False,
@@ -133,13 +134,10 @@ class GameView(View):
         """
         return self
 
-    def draw(self, screen):
+    def draw(self):
         """
         Draw the game view on the screen.
-
-        Args:
-            screen (pygame.Surface): The surface to draw on
         """
-        screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
 
-        self.board.draw(screen)
+        self.board.draw(self.screen)

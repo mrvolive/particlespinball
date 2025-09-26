@@ -18,14 +18,14 @@ class FallingBallView(View):
     under the influence of gravity and bounces off the walls.
     """
 
-    def __init__(self):
+    def __init__(self, screen):
         """
         Initialize the falling ball demonstration view.
 
         Creates a ball, board with boundaries, and sets up the physics
         simulation for the falling ball demonstration.
         """
-
+        super(FallingBallView, self).__init__(screen)
         self.width, self.height = pygame.display.get_surface().get_size()
         self.clock = pygame.time.Clock()
 
@@ -40,7 +40,7 @@ class FallingBallView(View):
 
         self.board = Board(
             boundaries=self.create_board_boundaries_group(),
-            balls=self.ball,
+            balls=[self.ball],
             inclination=1,
         )
 
@@ -60,7 +60,6 @@ class FallingBallView(View):
 
         self.board.update()
         self.ball.update()
-        return self
 
     def handle_event(self, event):
         """
@@ -74,18 +73,15 @@ class FallingBallView(View):
         """
         return self
 
-    def draw(self, screen):
+    def draw(self):
         """
         Draw the game view on the screen.
-
-        Args:
-            screen (pygame.Surface): The surface to draw on
         """
-        screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0))
 
-        self.board.draw(screen)
+        self.board.draw(self.screen)
 
-    def create_board_boundaries_group(self):
+    def create_board_boundaries_group(self) -> list[Wall]:
         """
         Create and return a group of wall boundaries for the board.
 
@@ -95,8 +91,6 @@ class FallingBallView(View):
         Returns:
             pygame.sprite.Group: A sprite group containing all boundary walls.
         """
-        result = pygame.sprite.Group()
-
         wall_width = 10
         wall_length = 600
 
@@ -130,22 +124,4 @@ class FallingBallView(View):
             color=Color.WHITE,
         )
 
-        # Add walls to boundaries group
-        result.add(leftWall, rightWall, topWall, bottomWall)
-        return result
-
-    def create_board_objects_group(self) -> pygame.sprite.Group:
-        """
-        Create and return a group of interactive objects on the board.
-
-        Currently includes only the ball, but can be extended to include
-        other interactive objects like pegs, bumpers, etc.
-
-        Returns:
-            pygame.sprite.Group: A sprite group containing all interactive objects.
-        """
-        result = pygame.sprite.Group()
-
-        result.add(self.ball)
-
-        return result
+        return [leftWall, rightWall, topWall, bottomWall]
