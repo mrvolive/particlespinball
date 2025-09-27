@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect
+from pygame.color import Color
 
-from utils.colors import Color
 from views.demos.ball_bounce_view import BallBounceView
 from views.demos.falling_ball_view import FallingBallView
 from views.game_view import GameView
@@ -61,12 +61,12 @@ class HomeView(View):
         self.screen.fill((0, 0, 0))
 
         # Draw title
-        title_surface = self.font.render('Particle Pinball', True, Color.WHITE)
+        title_surface = self.font.render('Particle Pinball', True, Color(255, 255, 255))
         title_rect = title_surface.get_rect(center=(self.width // 2, 100))
         self.screen.blit(title_surface, title_rect)
 
         # Draw subtitle
-        subtitle_surface = self.button_font.render('Choose a demo:', True, Color.GREY)
+        subtitle_surface = self.button_font.render('Choose a demo:', True, Color(105, 105, 105))
         subtitle_rect = subtitle_surface.get_rect(center=(self.width // 2, 150))
         self.screen.blit(subtitle_surface, subtitle_rect)
 
@@ -78,7 +78,7 @@ class HomeView(View):
             button['hover'] = button['rect'].collidepoint(mouse_pos)
 
             # Choose button color based on hover state (yellow when hovering)
-            button_color = Color.YELLOW if button['hover'] else Color.WHITE
+            button_color = Color(255, 255, 0) if button['hover'] else Color(255, 255, 255)
 
             # Draw button rectangle outline
             pygame.draw.rect(self.screen, button_color, button['rect'], 2)
@@ -94,7 +94,7 @@ class HomeView(View):
         # Draw user instructions at the bottom of the screen
         instruction_text = 'Click a button or press the corresponding key'
         instruction_surface = pygame.font.SysFont('Arial', 18).render(
-            instruction_text, True, Color.GREY
+            instruction_text, True, Color(105, 105, 105)
         )
         instruction_rect = instruction_surface.get_rect(center=(self.width // 2, self.height - 50))
         self.screen.blit(instruction_surface, instruction_rect)
