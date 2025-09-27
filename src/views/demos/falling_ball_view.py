@@ -1,11 +1,12 @@
+from pygame.sprite import Sprite
 from pygame.time import Clock
+from pygame.color import Color
 from pygame import Vector2
 
 from core.world import GRAVITY
 from objects.ball import Ball
 from objects.board import Board
 from objects.wall import Wall
-from utils.colors import Color
 from views.view import View
 
 
@@ -35,7 +36,7 @@ class FallingBallView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=(255, 0, 0),
+            color=Color(255, 0, 0),
         )
 
         self.board = Board(
@@ -69,7 +70,7 @@ class FallingBallView(View):
 
         self.board.draw(self.screen)
 
-    def create_board_boundaries_group(self) -> list[Wall]:
+    def create_board_boundaries_group(self) -> list[Sprite]:
         """
         Create and return a group of wall boundaries for the board.
 
@@ -88,28 +89,28 @@ class FallingBallView(View):
             y=self.height,
             width=wall_width,
             height=wall_length,
-            color=Color.WHITE,
+            color=Color(255, 255, 255),
         )
         rightWall = Wall(
             x=self.width,
             y=self.height,
             width=wall_width,
             height=wall_length,
-            color=Color.WHITE,
+            color=Color(255, 255, 255),
         )
         topWall = Wall(
             x=self.width,
             y=self.height,
             width=400,
             height=wall_width,
-            color=Color.WHITE,
+            color=Color(255, 255, 255),
         )
         bottomWall = Wall(
             x=self.width,
             y=self.height,
             width=400,
             height=wall_width,
-            color=Color.WHITE,
+            color=Color(255, 255, 255),
         )
 
         return [leftWall, rightWall, topWall, bottomWall]

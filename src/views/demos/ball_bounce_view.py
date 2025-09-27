@@ -1,7 +1,10 @@
 import pygame
+from pygame.color import Color
+from pygame.math import Vector2
 
 from objects.ball import Ball
 from objects.board import Board
+from src.core.world import GRAVITY
 from views.view import View
 
 
@@ -31,7 +34,7 @@ class BallBounceView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=(255, 0, 0),
+            color=Color(255, 0, 0),
         )
 
         self.board = Board(
@@ -40,6 +43,10 @@ class BallBounceView(View):
         )
 
     def update(self):
+        self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+        self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
+
+
         self.board.update()
         self.ball.update()
 

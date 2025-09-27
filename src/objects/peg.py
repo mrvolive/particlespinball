@@ -4,8 +4,8 @@ A small round object that act as a passive obstacle
 
 import pygame
 from pygame.sprite import Sprite
+from pygame.color import Color
 
-from utils.colors import Color
 
 
 class Peg(Sprite):
@@ -16,7 +16,7 @@ class Peg(Sprite):
     They don't apply any force to the ball but provide collision boundaries.
     """
 
-    def __init__(self, x: int, y: int, radius: int = 4, color: Color = Color.BLUE):
+    def __init__(self, x: int, y: int, radius: int = 4, color: Color = Color(0, 0, 255)):
         """
         Initialize a Peg object.
 

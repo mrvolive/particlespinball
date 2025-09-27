@@ -3,9 +3,7 @@ The board on which everything will take place
 """
 
 from pygame.sprite import Group, Sprite
-
-from objects.ball import Ball
-from objects.wall import Wall
+from typing import Optional
 
 
 class Board(Sprite):
@@ -17,9 +15,9 @@ class Board(Sprite):
 
     def __init__(
         self,
-        boundaries: list[Wall] = None,
-        balls: list[Ball] = None,
-        components: list[Sprite] = None,
+        boundaries: Optional[list[Sprite]] = None,
+        balls: Optional[list[Sprite]] = None,
+        components: Optional[list[Sprite]] = None,
         inclination=1.0,
     ):
         """
@@ -36,8 +34,6 @@ class Board(Sprite):
         # Accepte balls comme liste ou objet unique
         if balls is None:
             raise ValueError('A ball instance must be provided to the Board.')
-        if not isinstance(balls, (list, tuple)):
-            balls = [balls]
         if len(balls) == 0:
             raise ValueError('A ball instance must be provided to the Board.')
 
