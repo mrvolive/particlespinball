@@ -54,16 +54,18 @@ class BallBounceView(View):
         )
 
     def update(self):
+        # Appliquer les forces gravitationnelles
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
+        # Détection des collisions
         elements = self.board.get_colliding_balls()
 
         if elements:
-            for element in elements:
-                print(element[0], element[1])
-            exit()
+            for ball, touched in elements:
+                ball.set_velocity(Vector2(ball.velocity.x, -ball.velocity.y * ball.bounciness))
 
+        # Mise à jour des composants
         self.board.update()
         self.ball.update()
 

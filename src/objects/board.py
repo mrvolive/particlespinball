@@ -6,6 +6,8 @@ from typing import Optional
 
 from pygame.sprite import Group, Sprite, spritecollideany
 
+from objects.ball import Ball
+
 
 class Board(Sprite):
     """
@@ -87,7 +89,7 @@ class Board(Sprite):
         """
         self.components.remove(*components)
 
-    def get_colliding_balls(self) -> list[tuple[Sprite, Sprite]]:
+    def get_colliding_balls(self) -> list[tuple[Ball, Sprite]]:
         """
         Get a list of tuples (ball, touched_element) for balls currently colliding
         with the board boundaries or components.
