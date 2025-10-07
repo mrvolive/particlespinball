@@ -2,7 +2,7 @@
 The board on which everything will take place
 """
 
-from pygame.sprite import Group, Sprite
+from pygame.sprite import Group, Sprite, spritecollideany
 from typing import Optional
 
 
@@ -85,3 +85,16 @@ class Board(Sprite):
             components (list[Sprite]): The component to remove from the board.
         """
         self.components.remove(*components)
+
+    def get_colliding_balls(self) -> list[Sprite]:
+        """
+        Get a list of balls that are currently colliding with the board boundaries.
+
+        Returns:
+            list[Sprite]: List of balls colliding with the board boundaries.
+        """
+        colliding_balls = []
+        for ball in self.balls:
+            if spritecollideany(ball, self.boundaries):
+                colliding_balls.append(ball)
+        return colliding_balls

@@ -4,6 +4,7 @@ from pygame.math import Vector2
 
 from objects.ball import Ball
 from objects.board import Board
+from objects.wall import Wall
 from src.core.world import GRAVITY
 from views.view import View
 
@@ -28,6 +29,16 @@ class BallBounceView(View):
         self.width, self.height = self.screen.get_size()
         self.clock = pygame.time.Clock()
 
+        self.walls = [
+            Wall(
+                x=self.width // 2 - 100,
+                y= self.height // 2 - 100,
+                width=500,
+                height=5,
+                color=Color(255, 255, 255),
+            )
+        ]
+
         self.ball = Ball(
             x=self.width // 2,
             y=0,
@@ -38,6 +49,7 @@ class BallBounceView(View):
         )
 
         self.board = Board(
+            boundaries=self.walls,
             balls=[self.ball],
             inclination=1,
         )
@@ -46,10 +58,15 @@ class BallBounceView(View):
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
+        elements = self.board.get_colliding_balls()
+
+        if elements:
+            for element in elements:
+                print(element)
+            exit()
 
         self.board.update()
         self.ball.update()
-
 
     def draw(self):
         """
