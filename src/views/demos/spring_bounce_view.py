@@ -5,7 +5,7 @@ from pygame.math import Vector2
 from objects.ball import Ball
 from objects.board import Board
 from objects.horizontal_wall import HorizontalWall
-from src.core.world import GRAVITY
+from core.world import GRAVITY
 from views.view import View
 
 
