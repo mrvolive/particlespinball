@@ -47,23 +47,23 @@ class App:
         self.width, self.height = self.screen.get_size()
         pygame.display.set_caption('View Switcher')
         self.font = pygame.font.SysFont('Arial', 36)
-        
+
         # Initialize our custom Clock system
-        self.game_clock = Clock(fps=60, frequency_speed=1, frequency=60,
-                               update_func=self.update, 
-                               draw_func=self.draw)
+        self.game_clock = Clock(
+            fps=60, frequency_speed=1, frequency=60, update_func=self.update, draw_func=self.draw
+        )
 
         self.view = HomeView(self.screen, self.width, self.height, self.font)
 
     def update(self):
         """Update game logic using fixed timestep."""
         self.view.update()
-    
+
     def draw(self):
         """Draw the game state."""
         self.view.draw()
         pygame.display.flip()
-    
+
     def run(self):
         """
         Run the main application loop.

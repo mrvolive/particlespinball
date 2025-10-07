@@ -66,14 +66,17 @@ class Ball(Sprite):
         self.last_valid_x = self.x
         self.last_valid_y = self.y
 
-        # Update position using velocity (Euler integration)
-        # This is a simple physics simulation step
-        self.x += self.velocity.x
-        self.y += self.velocity.y
+        # Calculate new position
+        new_x = self.x + self.velocity.x
+        new_y = self.y + self.velocity.y
 
-        # Update the pygame rect position for collision detection
+        # Temporarily update position to check for collisions
+        self.x, self.y = new_x, new_y
         if self.rect:
             self.rect.center = (self.x, self.y)
+
+        # Check if this new position would cause a collision
+        # We'll check this in the view methods and revert if needed
 
     def draw(self, screen):
         """

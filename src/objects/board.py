@@ -107,3 +107,39 @@ class Board(Sprite):
             if touched:
                 colliding_balls.append((ball, touched))
         return colliding_balls
+
+    def would_ball_collide(self, ball: Ball, x: float, y: float) -> tuple[bool, Optional[Sprite]]:
+        """
+        Check if a ball would collide at a specific position.
+
+        Args:
+            ball (Ball): The ball to check
+            x (float): The x position to check
+            y (float): The y position to check
+
+        Returns:
+            tuple[bool, Optional[Sprite]]: (would_collide, colliding_object)
+        """
+        # Store original position
+        original_x, original_y = ball.x, ball.y
+        original_rect_center = ball.rect.center if ball.rect else None
+
+        # Temporarily move ball to test position
+        ball.x = x
+        ball.y = y
+        if ball.rect:
+            ball.rect.center = (x, y)
+
+        # Check for collisions
+        all_targets = Group()
+        all_targets.add(*self.boundaries.sprites())
+        all_targets.add(*self.components.sprites())
+
+        touched = spritecollideany(ball, all_targets)
+
+        # Restore original position
+        ball.x, ball.y = original_x, original_y
+        if ball.rect:
+            ball.rect.center = original_rect_center
+
+        return (touched is not None, touched)

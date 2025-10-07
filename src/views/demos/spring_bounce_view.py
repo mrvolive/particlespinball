@@ -85,30 +85,32 @@ class SpringBounceView(View):
         # Apply gravitational force to the ball
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
 
-        # Update components
-        self.board.update()
-        self.ball.update()
+        # Calculate new position before moving
+        new_x = self.ball.x + self.ball.velocity.x
+        new_y = self.ball.y + self.ball.velocity.y
 
-        # Collision detection and response
-        colliding_balls = self.board.get_colliding_balls()
-        if colliding_balls:
-            for ball, touched in colliding_balls:
-                if hasattr(touched, 'get_normal'):
-                    # Revert to last valid position to prevent overlap
-                    ball.revert_to_last_valid_position()
+        # Check if the new position would cause a collision
+        would_collide, colliding_object = self.board.would_ball_collide(self.ball, new_x, new_y)
 
-                    normal = touched.get_normal(ball)
+        if would_collide and colliding_object and hasattr(colliding_object, 'get_normal'):
+            # Don't move the ball - keep it at current position
+            # Just handle the collision response
+            normal = colliding_object.get_normal(self.ball)
 
-                    # Invert the normal to point outwards from the collision surface,
-                    # as required by the reflection formula.
-                    normal *= -1
+            # Invert the normal to point outwards from the collision surface,
+            # as required by the reflection formula.
+            normal *= -1
 
-                    reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
-                    ball.velocity = reflected * ball.bounciness
+            reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+            self.ball.velocity = reflected * self.ball.bounciness
 
-                    # Spring effect: if the moving wall hits the ball from below
-                    if touched == self.moving_wall and self.wall_velocity.y < 0:
-                        ball.velocity.y += self.wall_velocity.y * 1.5
+            # Spring effect: if the moving wall hits the ball from below
+            if colliding_object == self.moving_wall and self.wall_velocity.y < 0:
+                self.ball.velocity.y += self.wall_velocity.y * 1.5
+        else:
+            # No collision, so update the ball normally
+            self.board.update()
+            self.ball.update()
 
     def draw(self):
         """

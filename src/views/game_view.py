@@ -126,28 +126,30 @@ class GameView(View):
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
-        # Mise à jour des composants
-        self.board.update()
-        self.ball.update()
+        # Calculate new position before moving
+        new_x = self.ball.x + self.ball.velocity.x
+        new_y = self.ball.y + self.ball.velocity.y
 
-        # Détection des collisions après mise à jour
-        colliding_balls = self.board.get_colliding_balls()
-        if colliding_balls:
-            for ball, touched in colliding_balls:
-                if hasattr(touched, 'get_normal'):
-                    # Revert to last valid position to prevent overlap
-                    ball.revert_to_last_valid_position()
+        # Check if the new position would cause a collision
+        would_collide, colliding_object = self.board.would_ball_collide(self.ball, new_x, new_y)
 
-                    normal = touched.get_normal(ball)
+        if would_collide and colliding_object and hasattr(colliding_object, 'get_normal'):
+            # Don't move the ball - keep it at current position
+            # Just handle the collision response
+            normal = colliding_object.get_normal(self.ball)
 
-                    # formule de reflexion vectoriel :
-                    # R = J - 2 * (J . N) * N
-                    # où :
-                    #   R = vecteur réfléchi (nouvelle vitesse)
-                    #   J = vecteur vitesse initiale
-                    #   N = vecteur normal à la surface touchée
-                    reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
-                    ball.velocity = reflected * ball.bounciness
+            # formule de reflexion vectoriel :
+            # R = J - 2 * (J . N) * N
+            # où :
+            #   R = vecteur réfléchi (nouvelle vitesse)
+            #   J = vecteur vitesse initiale
+            #   N = vecteur normal à la surface touchée
+            reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+            self.ball.velocity = reflected * self.ball.bounciness
+        else:
+            # No collision, so update the ball normally
+            self.board.update()
+            self.ball.update()
 
     def draw(self):
         """
