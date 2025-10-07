@@ -26,7 +26,6 @@ class BallBounceView(View):
         """
         super(BallBounceView, self).__init__(screen)
         self.width, self.height = self.screen.get_size()
-        self.clock = pygame.time.Clock()
 
         self.walls = [
             HorizontalWall(

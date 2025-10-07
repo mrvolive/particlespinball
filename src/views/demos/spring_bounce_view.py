@@ -26,7 +26,6 @@ class SpringBounceView(View):
         """
         super(SpringBounceView, self).__init__(screen)
         self.width, self.height = self.screen.get_size()
-        self.clock = pygame.time.Clock()
 
         self.moving_wall = HorizontalWall(
             x=self.width // 2 - 250,
@@ -81,7 +80,6 @@ class SpringBounceView(View):
         """
         Update the game's logic.
         """
-        self.process_input()
 
         # Update the moving wall's position
         self.moving_wall.rect.y += self.wall_velocity.y
@@ -122,6 +120,5 @@ class SpringBounceView(View):
         """
         running = True
         while running:
-            self.update()
-            self.draw()
-            self.clock.tick(60)
+            self.process_input()
+            self.clock.tick()

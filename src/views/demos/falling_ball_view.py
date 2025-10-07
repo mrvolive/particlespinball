@@ -1,12 +1,12 @@
 from pygame import Vector2
 from pygame.sprite import Sprite
-from pygame.time import Clock
 
 from core.world import GRAVITY
 from objects.ball import Ball
 from objects.board import Board
 from objects.horizontal_wall import HorizontalWall
 from objects.vertical_wall import VerticalWall
+from utils.time import Clock
 from views.view import View
 
 
@@ -28,7 +28,6 @@ class FallingBallView(View):
         """
         super(FallingBallView, self).__init__(screen)
         self.width, self.height = self.screen.get_size()
-        self.clock = Clock()
 
         self.ball = Ball(
             x=self.width // 2,

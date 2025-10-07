@@ -8,7 +8,7 @@ from pygame import Vector2
 from pygame.color import Color
 from pygame.sprite import Sprite
 
-from core.world import DT, time_scale
+from utils.time import Clock
 
 
 class Ball(Sprite):
@@ -105,8 +105,8 @@ class Ball(Sprite):
         acceleration = total_force / self.mass
 
         # Update velocity using Euler integration: v(t+Δt) = v(t) + a(t)Δt
-        # Note: Δt is implicitly handled by the frame rate in the main loop
-        self.velocity += acceleration * DT * time_scale
+        # Using our fixed timestep from Clock system
+        self.velocity += acceleration * Clock.dt
 
         # Clear forces after applying them
         self.forces.clear()

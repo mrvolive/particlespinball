@@ -1,7 +1,7 @@
 VENV = .venv
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
-MAIN_FILE = main.py
+MAIN_FILE = src/main.py
 
 .PHONY: requirements clean install reinstall run lint format
 

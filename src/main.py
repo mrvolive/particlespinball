@@ -3,7 +3,7 @@ import sys
 import pygame
 
 from typing import Optional
-from core.world import FPS
+from utils.time import Clock
 from views.home_view import HomeView
 
 
@@ -43,15 +43,28 @@ class App:
         self.width, self.height = self.screen.get_size()
         pygame.display.set_caption('View Switcher')
         self.font = pygame.font.SysFont('Arial', 36)
-        self.clock = pygame.time.Clock()
+        
+        # Initialize our custom Clock system
+        self.game_clock = Clock(fps=60, frequency_speed=1, frequency=60,
+                               update_func=self.update, 
+                               draw_func=self.draw)
 
         self.view = HomeView(self.screen, self.width, self.height, self.font)
 
+    def update(self):
+        """Update game logic using fixed timestep."""
+        self.view.update()
+    
+    def draw(self):
+        """Draw the game state."""
+        self.view.draw()
+        pygame.display.flip()
+    
     def run(self):
         """
         Run the main application loop.
 
-        Handles events, updates views, and renders the screen at 60 FPS.
+        Handles events, updates views, and renders the screen using our Clock system.
         Exits on QUIT event or ESC key press.
         """
         running = True
@@ -66,10 +79,8 @@ class App:
                 else:
                     self.view = self.view.handle_event(event)
 
-            self.view.update()
-            self.view.draw()
-            pygame.display.flip()
-            self.clock.tick(FPS)
+            # Use our custom Clock system for frame timing
+            self.game_clock.tick()
 
         pygame.quit()
         sys.exit()
