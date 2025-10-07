@@ -1,0 +1,340 @@
+= Project Architecture
+:author: Particle Pinball Team
+:revnumber: 1.0.0
+:revdate: 2025-10-07
+:toc: left
+:toclevels: 4
+:sectanchors:
+:icons: font
+:source-highlighter: pygments
+:source-linenums-option: table
+
+++++
+<div style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); color: white; padding: 30px; border-radius: 15px; margin: 20px 0; text-align: center;">
+  <h1 style="margin: 0 0 15px 0; font-size: 2.5em;">Project Architecture</h1>
+  <p style="margin: 0; font-size: 1.3em; opacity: 0.9;">Model-View-Controller Design with Separation of Concerns</p>
+</div>
+++++
+
+The Particle Pinball project follows a Model-View-Controller (MVC) pattern with a strong emphasis on separation of concerns. This document explains the architectural decisions and how different modules interact with each other.
+
+[.architecture-principles]
+* **icon:puzzle-piece[role=blue] Modular Design** - Each module has a single, well-defined responsibility
+* **icon:project-diagram[role=green] MVC Pattern** - Clear separation between data, presentation, and control
+* **icon:plug[role=orange] Loose Coupling** - Modules interact through well-defined interfaces
+* **icon:expand-arrows-alt[role=purple] High Cohesion** - Related functionality is grouped together
+
+== Architectural Overview
+
+The project is organized into four main modules, each with distinct responsibilities:
+
+.Architecture Overview
+[source, text,subs="attributes+"]
+----
+src/
+├── core/           # Physics engine and world state
+├── objects/        # Game entities and their behaviors
+├── utils/          # Shared utilities and helpers
+└── views/          # User interface and presentation layer
+----
+
+[.module-overview]
+[cols="1,3",options="header"]
+|===
+| Module | Primary Responsibility
+| **icon:cogs[role=navy] core/**
+| Physics engine and world state management
+
+| **icon:cube[role=teal] objects/**
+| Game entities and their behaviors
+
+| **icon:wrench[role=maroon] utils/**
+| Shared utilities and helper functions
+
+| **icon:desktop[role=olive] views/**
+| User interface and presentation layer
+|===
+
+++++
+<div style="background: #f8f9fa; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+  <strong>Design Philosophy:</strong> Each module is self-contained and can be developed, tested, and maintained independently while working together seamlessly.
+</div>
+++++
+
+== Core Module (`src/core/`)
+
+[.module-header]
+[cols="1,1",options="header"]
+|===
+| **icon:cogs[role=navy] Core Module**
+| The foundation of the entire simulation, providing physics constants and world management
+|===
+
+The core module contains the fundamental physics constants and world management that govern the entire simulation.
+
+=== Responsibilities
+
+[.responsibilities-grid]
+[cols="1,3",options="header"]
+|===
+| Responsibility | Implementation Details
+| **Physics Constants**
+| 
+* Define global gravity (`GRAVITY = 9.81`)
+* Set frame rate (`FPS = 60`)
+* Calculate time step (`DT = 1/FPS`)
+* Configure simulation speed (`time_scale`)
+
+| **Coordinate Systems**
+| 
+* Manage real-world to pixel transformations
+* Define scale factor (`PIXEL_PER_METER = 100`)
+* Handle unit conversions
+* Support multiple coordinate systems
+
+| **Central Configuration**
+| 
+* Provide single source of truth for physics settings
+* Enable global parameter adjustments
+* Support simulation customization
+* Maintain consistency across modules
+|===
+
+=== Key Components
+
+.Core Module Structure
+[source, python,linenums]
+----
+# world.py - Physics constants and world configuration
+
+# Coordinate transformation scale
+PIXEL_PER_METER = 100    # 1 meter = 100 pixels
+
+# Time management
+time_scale = 1.0         # Simulation speed multiplier
+FPS = 60                # Frame rate for physics calculations
+DT = 1.0 / FPS         # Time step in seconds
+
+# Physics constants
+GRAVITY = 9.81         # Gravitational constant (m/s²)
+----
+
+[.constants-explanation]
+[cols="1,2",options="header"]
+|===
+| Constant | Purpose & Impact
+| `PIXEL_PER_METER`
+| * Converts real-world measurements to screen coordinates
+* Enables realistic scaling of physics objects
+* Affects visual representation and collision precision
+
+| `time_scale`
+| * Controls simulation speed (1.0 = real-time)
+* Allows slow-motion or fast-forward effects
+* Impacts physics calculation frequency
+
+| `FPS` & `DT`
+| * Determines physics update frequency
+* Ensures frame-rate independent physics
+* Affects simulation stability and accuracy
+
+| `GRAVITY`
+| * Sets gravitational acceleration
+* Used in force calculations across all objects
+* Configurable for different planetary environments
+|===
+
+=== Interactions
+
+[.interaction-diagram]
+The core module serves as the central configuration hub:
+
+[source, text,subs="attributes+"]
+----
+core/world.py
+├── objects/ball.py (GRAVITY, DT, time_scale)
+├── objects/board.py (indirect through objects)
+├── views/game_view.py (GRAVITY, FPS)
+├── views/demos/*.py (GRAVITY, DT, time_scale)
+└── main.py (FPS, application configuration)
+----
+
+[.dependency-flow]
+* **icon:arrow-down[role=blue] Objects Module** - Imports physics constants for force calculations
+* **icon:arrow-down[role=green] Views Module** - Uses timing constants for simulation updates
+* **icon:arrow-down[role=orange] Main Application** - Configures global settings and frame rate
+
+++++
+<div style="background: #e3f2fd; border: 1px solid #2196f3; padding: 15px; margin: 20px 0; border-radius: 8px;">
+  <strong>Centralized Configuration:</strong> By keeping all physics constants in one place, we ensure consistency and make global adjustments easy.
+</div>
+++++
+
+== Objects Module (`src/objects/`)
+
+The objects module contains all game entities that participate in the physics simulation. Each object is responsible for its own physics, rendering, and collision behavior.
+
+=== Responsibilities
+
+* Define game entities (Ball, Board, Walls, Pegs, Bumpers)
+* Implement physics calculations for each object type
+* Handle collision detection and response
+* Manage object state and lifecycle
+
+=== Key Components
+
+[source]
+----
+objects/
+├── ball.py           # Ball physics and movement
+├── board.py          # Game board and collision management
+├── horizontal_wall.py  # Horizontal wall obstacles
+├── vertical_wall.py    # Vertical wall obstacles
+├── peg.py            # Static circular obstacles
+└── bumper.py         # Dynamic circular obstacles
+----
+
+=== Object Hierarchy
+
+All game objects inherit from `pygame.sprite.Sprite`, providing:
+* Automatic collision detection through `rect` attributes
+* Efficient rendering through sprite groups
+* Standardized interface for the game engine
+
+=== Interactions
+
+* Objects interact with each other through collision detection
+* The `Board` class manages collections of objects
+* Objects reference `core.world` for physics constants
+* Views interact with objects for rendering and state updates
+
+== Views Module (`src/views/`)
+
+The views module handles all user interface aspects, including rendering, user input, and navigation between different screens.
+
+=== Responsibilities
+
+* Render game objects to the screen
+* Handle user input and events
+* Manage navigation between different game screens
+* Provide user interface elements (buttons, text, etc.)
+
+=== Key Components
+
+[source]
+----
+views/
+├── view.py                   # Base view class
+├── home_view.py             # Main menu screen
+├── game_view.py             # Main pinball game
+└── demos/
+    ├── falling_ball_view.py     # Gravity demonstration
+    ├── ball_bounce_view.py      # Collision demonstration
+    └── spring_bounce_view.py    # Spring physics demonstration
+----
+
+=== View Hierarchy
+
+All views inherit from the base `View` class, providing:
+* Standardized event handling interface
+* Common rendering pipeline
+* Consistent state management
+
+=== Interactions
+
+* Views interact with `objects` for game state and rendering
+* Views handle user input and translate it to game actions
+* Views reference `core.world` for timing and physics constants
+* The main application loop manages view transitions
+
+== Utils Module (`src/utils/`)
+
+The utils module contains shared utility functions and helper classes used throughout the application.
+
+=== Responsibilities
+
+* Provide common mathematical operations
+* Handle coordinate transformations
+* Offer shared helper functions
+
+=== Current State
+
+Currently, this module is minimal but ready for expansion as the project grows.
+
+== Data Flow and Interactions
+
+=== Physics Simulation Loop
+
+[source]
+----
+1. View.update() called
+   ↓
+2. Objects apply forces (gravity, collisions)
+   ↓
+3. Objects update positions based on physics
+   ↓
+4. Collision detection and response
+   ↓
+5. View.draw() renders updated state
+----
+
+=== Event Handling Flow
+
+[source]
+----
+1. Pygame event generated
+   ↓
+2. Current view.handle_event() processes event
+   ↓
+3. View may transition to new view or stay current
+   ↓
+4. Application updates active view
+----
+
+=== Module Dependencies
+
+[source]
+----
+main.py
+├── core.world (physics constants)
+└── views.home_view (initial screen)
+
+views/
+├── core.world (timing, physics)
+├── objects.* (game state)
+└── pygame (rendering, input)
+
+objects/
+├── core.world (physics constants)
+└── pygame.sprite (collision, rendering)
+----
+
+== Design Patterns
+
+=== Model-View-Controller (MVC)
+
+* **Model**: `objects/` module - game state and physics
+* **View**: `views/` module - rendering and user interface
+* **Controller**: Event handling distributed across views and main loop
+
+=== Sprite Pattern
+
+All game objects use Pygame's sprite system for:
+* Efficient collision detection
+* Batch rendering
+* Automatic group management
+
+=== Factory Pattern
+
+The home view acts as a factory for creating different demo views based on user selection.
+
+== Extensibility
+
+The architecture supports easy extension through:
+
+* **New Objects**: Add new game objects by inheriting from `Sprite`
+* **New Views**: Create new screens by inheriting from `View`
+* **New Physics**: Extend core physics constants and calculations
+* **New Demos**: Add new demonstrations in the views/demos/ directory
+
+This modular architecture ensures that the project remains maintainable and extensible as new features are added.

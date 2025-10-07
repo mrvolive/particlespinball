@@ -48,7 +48,10 @@ class SpringBounceView(View):
         )
 
         self.board = Board(
-            boundaries=[self.moving_wall, HorizontalWall(x=0, y=0, width=self.width, height=5, color=(255, 255, 255))],
+            boundaries=[
+                self.moving_wall,
+                HorizontalWall(x=0, y=0, width=self.width, height=5, color=(255, 255, 255)),
+            ],
             balls=[self.ball],
             inclination=1,
         )

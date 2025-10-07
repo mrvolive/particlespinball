@@ -1,0 +1,224 @@
+= Particle Pinball Documentation
+:author: Particle Pinball Team
+:email: contact@particlespinball.dev
+:revnumber: 1.0.0
+:revdate: 2025-10-07
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectnums:
+:icons: font
+:source-highlighter: pygments
+:source-linenums-option: table
+
+image::particle-pinball-logo.png[align=center,alt="Particle Pinball Logo",width=400]
+
+++++
+<div style="text-align: center; font-size: 1.2em; margin: 20px 0; color: #2c3e50;">
+Welcome to the <strong>Particle Pinball</strong> project documentation. This comprehensive guide covers all aspects of the project, from high-level architecture to detailed development practices.
+</div>
+++++
+
+== Quick Start
+
+TIP: Get started quickly with these essential documents:
+
+[cols="2,3",options="header"]
+|===
+| Document | Description
+| <<project_overview.adoc#,Project Overview>> | High-level introduction and key features
+| <<architecture.adoc#,Architecture>> | System design and module organization  
+| <<development_guide.adoc#,Development Guide>> | Setup, coding standards, and workflows
+|===
+
+== Documentation Structure
+
+=== Core Documentation
+
+[cols="1,4",options="header"]
+|===
+| Document | Content Coverage
+| <<project_overview.adoc#,Project Overview>> 
+| * Purpose and goals of the project
+* Key features and capabilities
+* Technology stack and requirements
+* Getting started instructions
+
+| <<architecture.adoc#,Architecture>>
+| * Module organization and responsibilities
+* Design patterns and principles
+* Data flow and interactions
+* Extensibility considerations
+
+| <<module_interactions.adoc#,Module Interactions>>
+| * Detailed module communication patterns
+* Data flow between components
+* Dependency relationships
+* Performance considerations
+
+| <<development_guide.adoc#,Development Guide>>
+| * Environment setup and configuration
+* Coding standards and best practices
+* Testing and debugging procedures
+* Contribution guidelines
+|===
+
+=== Physics Documentation
+
+[cols="1,4",options="header"]
+|===
+| Document | Topics Covered
+| <<gravitational_force_physics.adoc#,Gravitational Force Physics>>
+| * Physics concepts and implementation
+* Mathematical formulas and calculations
+* Real-world vs. simulation physics
+* Force integration methods
+
+| <<inclined_plane_physics.adoc#,Inclined Plane Physics>>
+| * Inclined plane mechanics
+* Force decomposition
+* Simulation implementation details
+* Mass cancellation demonstration
+* Educational applications
+|===
+
+
+
+NOTE: The API Reference file has been removed from the documentation. For detailed API information, please refer to the source code docstrings and individual module documentation.
+
+== Getting Started
+
+=== Prerequisites
+
+[role="prerequisites"]
+* **icon:python[role=red] Python 3.13+** - Latest Python version required
+* **icon:graduation-cap[role=blue] Physics Basics** - Understanding of fundamental physics concepts
+* **icon:gamepad[role=green] Pygame Knowledge** - Helpful but not required (we'll teach you!)
+
+=== Installation
+
+.Installation Commands
+[source, bash,linenums]
+----
+git clone <repository-url>
+cd particlespinball
+make install
+make run
+----
+
+TIP: The `make install` command creates a virtual environment and installs all dependencies automatically.
+
+=== First Steps
+
+. **Run the application** - Execute `make run` to see available demos
+. **Explore different views** - Navigate through the home screen to experience different physics simulations
+. **Read the architecture documentation** - Understand the codebase structure and design patterns
+. **Check the development guide** - Learn how to contribute and extend the project
+
+== Project Structure
+
+.Project Directory Tree
+[source, text,subs="attributes+"]
+----
+particlespinball/
+├── src/                    # Source code
+│   ├── core/              # Physics engine and world management
+│   ├── objects/           # Game entities and physics objects
+│   ├── utils/             # Utility functions and helpers
+│   ├── views/             # User interface and rendering
+│   └── main.py            # Application entry point
+├── docs/                  # Documentation (this directory)
+├── tests/                 # Test suite
+├── requirements.txt       # Python dependencies
+├── pyproject.toml        # Project configuration
+├── Makefile             # Build automation
+├── LICENSE              # License terms
+└── README.md            # Project summary
+----
+
+[cols="2,3,2",options="header"]
+|===
+| Directory | Purpose | Key Files
+| `src/core/` | Physics engine | `world.py`
+| `src/objects/` | Game entities | `ball.py`, `board.py`, `peg.py`
+| `src/views/` | User interface | `game_view.py`, `home_view.py`
+| `docs/` | Documentation | `*.adoc` files
+| `tests/` | Test suite | `test_*.py` files
+|===
+
+== Key Concepts
+
+=== Physics Simulation
+
+The project implements realistic physics including:
+
+[.physics-features]
+* **icon:arrow-down[role=red] Gravity** - Constant downward force affecting all objects
+* **icon:expand[role=blue] Collision Detection** - Precise collision between objects
+* **icon:calculator[role=green] Force Application** - Vector-based force calculations
+* **icon:rocket[role=orange] Velocity Integration** - Position updates based on velocity
+
+=== Game Architecture
+
+The project follows established patterns:
+
+[.architecture-patterns]
+* **icon:project-diagram[role=purple] Model-View-Controller** - Separation of game logic, rendering, and input
+* **icon:th[role=teal] Sprite Pattern** - Efficient collision detection and rendering
+* **icon:industry[role=maroon] Factory Pattern** - Dynamic creation of different game views
+
+=== Educational Value
+
+This project serves as an educational tool for:
+
+[.educational-benefits]
+* **icon:atom[role=navy] Physics Education** - Hands-on physics simulation
+* **icon:code[role=olive] Game Development** - Complete game development pipeline
+* **icon:sitemap[role=lime] Software Architecture** - Modular design principles
+* **icon:python[role=fuchsia] Python Programming** - Practical Python application development
+
+== Contributing
+
+We welcome contributions! Please see the <<development_guide.adoc#,Development Guide>> for:
+
+[.contribution-items]
+* **icon:file-code[role=blue] Coding Standards** - Conventions and best practices
+* **icon:flask[role=green] Testing Requirements** - Test coverage and quality assurance
+* **icon:code-branch[role=orange] Pull Request Process** - Submission and review guidelines
+* **icon:book[role=purple] Documentation Guidelines** - Keeping docs up to date
+
+== License
+
+This project is licensed under the terms specified in the link:LICENSE[LICENSE file].
+
+== Support
+
+For questions, issues, or contributions:
+
+[.support-options]
+* **icon:search[role=blue] Check Documentation** - Review existing docs first
+* **icon:issues[role=orange] Review Issues** - Browse open and closed issues
+* **icon:bug[role=red] Report Bugs** - Create new issues for problems
+* **icon:lightbulb[role=yellow] Request Features** - Suggest improvements
+* **icon:handshake[role=green] Follow Guidelines** - Adhere to contribution standards
+
+== Navigation
+
+Use the table of contents or the following quick links to navigate the documentation:
+
+[.navigation-grid]
+[cols="2,2",options="header"]
+|===
+| Core Documentation | Physics Documentation
+| <<project_overview.adoc#,Project Overview>> | <<gravitational_force_physics.adoc#,Gravitational Force Physics>>
+| <<architecture.adoc#,Architecture>> | <<inclined_plane_physics.adoc#,Inclined Plane Physics>>
+| <<module_interactions.adoc#,Module Interactions>> | 
+| <<development_guide.adoc#,Development Guide>> |
+|===
+
+++++
+<div style="text-align: center; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+  <h2 style="margin: 0 0 10px 0;">Thank you for your interest in the Particle Pinball project!</h2>
+  <p style="margin: 0;">We hope this documentation helps you understand, use, and contribute to our physics simulation project.</p>
+</div>
+++++

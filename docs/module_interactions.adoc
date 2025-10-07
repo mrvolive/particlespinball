@@ -1,0 +1,348 @@
+= Module Interactions and Data Flow
+
+This document provides a detailed explanation of how different modules in the Particle Pinball project interact with each other, including data flow, dependencies, and communication patterns.
+
+== Module Interaction Overview
+
+The project consists of four main modules that work together to create a cohesive physics simulation game. Understanding these interactions is crucial for maintaining and extending the codebase.
+
+== Core Module Interactions
+
+The `core/` module serves as the foundation for the entire application, providing physics constants and world management.
+
+=== Dependencies
+
+[source]
+----
+core/world.py (No external dependencies)
+└── Exported to: objects/, views/, main.py
+----
+
+=== Interaction Patterns
+
+**Physics Constants Distribution**:
+[source]
+----
+core/world.py ──┐
+                 ├── objects/ball.py (GRAVITY, DT, time_scale)
+                 ├── objects/board.py (indirect through objects)
+                 ├── views/game_view.py (GRAVITY)
+                 ├── views/demos/*.py (GRAVITY, DT)
+                 └── main.py (FPS)
+----
+
+**Coordinate System Management**:
+* `PIXEL_PER_METER`: Used for transforming real-world coordinates to screen coordinates
+* Currently implemented but not extensively used - ready for future physics scaling
+
+=== Data Flow
+
+[source]
+----
+Application Start
+    ↓
+core.world constants loaded
+    ↓
+Constants distributed to importing modules
+    ↓
+Modules use constants for physics calculations
+----
+
+== Objects Module Interactions
+
+The `objects/` module contains all game entities and manages their physics, collisions, and state.
+
+=== Internal Dependencies
+
+[source]
+----
+objects/board.py
+├── objects/ball.py
+├── objects/horizontal_wall.py
+├── objects/vertical_wall.py
+├── objects/peg.py
+└── objects/bumper.py
+
+objects/*.py
+├── core/world.py (physics constants)
+└── pygame.sprite (Sprite base class)
+----
+
+=== Interaction Patterns
+
+**Board-Object Management**:
+[source]
+----
+Board class
+├── Manages collections of:
+│   ├── boundaries (walls)
+│   ├── components (pegs, bumpers)
+│   └── balls
+├── Coordinates collision detection
+└── Provides unified update/draw interface
+----
+
+**Collision Detection Chain**:
+[source]
+----
+Board.get_colliding_balls()
+    ↓
+pygame.sprite.spritecollideany()
+    ↓
+Object.get_normal() (if available)
+    ↓
+Vector reflection calculation
+    ↓
+Ball velocity update
+----
+
+=== Data Flow
+
+[source]
+----
+Physics Update
+    ↓
+Board.update()
+    ↓
+Ball.update() → apply_forces() → velocity/position update
+    ↓
+Component.update() (mostly static objects)
+    ↓
+Collision detection and response
+----
+
+**Force Application Flow**:
+[source]
+----
+External force (gravity, user input)
+    ↓
+Ball.add_force()
+    ↓
+Force stored in forces list
+    ↓
+Ball.apply_forces() → F=ma calculation
+    ↓
+Velocity updated based on acceleration
+----
+
+== Views Module Interactions
+
+The `views/` module handles all user interface aspects and manages the presentation layer.
+
+=== Internal Dependencies
+
+[source]
+----
+views/home_view.py
+├── views/game_view.py
+├── views/demos/falling_ball_view.py
+├── views/demos/ball_bounce_view.py
+├── views/demos/spring_bounce_view.py
+└── views/view.py (base class)
+
+views/*.py
+├── core/world.py (FPS, timing)
+├── objects/*.py (game state)
+└── pygame (rendering, events)
+----
+
+=== Interaction Patterns
+
+**View Management**:
+[source]
+----
+main.py
+    ↓
+HomeView (initial view)
+    ↓
+User input → handle_event()
+    ↓
+View transition (HomeView → GameView/DemoView)
+    ↓
+New view takes over event handling and rendering
+----
+
+**Rendering Pipeline**:
+[source]
+----
+View.draw()
+    ↓
+Board.draw() → renders all objects
+    ↓
+pygame.sprite.Group.draw() → efficient batch rendering
+    ↓
+Screen update and display flip
+----
+
+=== Data Flow
+
+[source]
+----
+Main Loop
+    ↓
+View.handle_event() → process user input
+    ↓
+View.update() → update game state
+    ↓
+View.draw() → render to screen
+    ↓
+pygame.display.flip() → show updated frame
+----
+
+**Event Handling Flow**:
+[source]
+----
+pygame.event.Event
+    ↓
+Current view.handle_event()
+    ↓
+Event processing (keyboard, mouse, etc.)
+    ↓
+Return self (stay) or new view (transition)
+    ↓
+Application updates active view
+----
+
+== Cross-Module Interactions
+
+=== Physics Simulation Integration
+
+[source]
+----
+views/game_view.py
+    ↓
+objects/board.py
+    ↓
+objects/ball.py
+    ↓
+core/world.py (GRAVITY, DT)
+    ↓
+Physics calculations and updates
+----
+
+**Detailed Physics Flow**:
+[source]
+----
+1. View.update() called
+2. Ball.add_force(Vector2(0, GRAVITY * mass))
+3. Ball.apply_forces() → F=ma → acceleration
+4. Ball.update() → position += velocity * DT
+5. Board.get_colliding_balls() → collision detection
+6. Collision response → velocity reflection
+7. Board.update() → all objects updated
+8. View.draw() → render updated state
+---
+
+=== User Input to Game Action
+
+[source]
+----
+pygame.event (KEYDOWN, MOUSEBUTTONDOWN)
+    ↓
+View.handle_event()
+    ↓
+Direct object manipulation:
+    ├── Ball velocity changes
+    ├── Wall position changes (spring demo)
+    └── View transitions
+----
+
+=== State Management
+
+[source]
+----
+Game State (objects/)
+    ↓
+Views read state for rendering
+    ↓
+Views modify state through object methods
+    ↓
+Physics engine updates state continuously
+    ↓
+Cycle repeats for next frame
+----
+
+== Communication Patterns
+
+=== Direct Method Calls
+
+Most communication happens through direct method calls:
+
+[source]
+----
+view.update() → board.update() → ball.update()
+view.draw() → board.draw() → sprite_group.draw()
+ball.add_force() → force accumulation
+board.get_colliding_balls() → collision detection
+----
+
+=== Event-Driven Communication
+
+User input and system events drive state changes:
+
+[source]
+----
+User Action → pygame.event → view.handle_event() → game state change
+Physics Update → position change → collision → velocity change
+View Transition → new view takes over → different behavior
+----
+
+=== Data Sharing Through References
+
+Objects share data through object references:
+
+[source]
+----
+Board holds references to all game objects
+Views hold references to board and screen
+Ball holds reference to physics constants
+All objects share pygame coordinate system
+----
+
+== Performance Considerations
+
+=== Efficient Rendering
+
+[source]
+----
+pygame.sprite.Group.draw() → batch rendering
+Single screen.clear() per frame
+Minimal state copying between modules
+Direct object access without serialization
+----
+
+=== Collision Detection Optimization
+
+[source]
+----
+pygame.sprite.spritecollideany() → optimized spatial partitioning
+Board.get_colliding_balls() → minimal collision checks
+Rectangle-based collision before precise calculations
+Group-based collision detection
+----
+
+== Debugging and Maintenance
+
+=== Module Boundaries
+
+Clear module boundaries help with debugging:
+
+[source]
+----
+Physics issues → check objects/ and core/
+Rendering issues → check views/ and pygame calls
+Input issues → check views/ event handling
+Architecture issues → check module interactions
+----
+
+=== Data Flow Tracing
+
+To trace data flow:
+
+1. Start with `main.py` application loop
+2. Follow view transitions through `handle_event()` returns
+3. Track physics updates through `update()` method chains
+4. Monitor state changes through object method calls
+5. Verify rendering through `draw()` method calls
+
+This comprehensive interaction model ensures that the project remains maintainable and that each module has clear responsibilities and well-defined communication patterns.

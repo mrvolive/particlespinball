@@ -1,0 +1,411 @@
+= Development Guide
+
+This guide provides information for developers who want to contribute to the Particle Pinball project, including coding standards, development workflow, and extension patterns.
+
+== Development Environment Setup
+
+=== Prerequisites
+
+* Python 3.13 or higher
+* pip package manager
+* Virtual environment support
+
+=== Setup Steps
+
+1. **Clone the repository**:
+[source, bash]
+----
+git clone <repository-url>
+cd particlespinball
+----
+
+2. **Create virtual environment**:
+[source, bash]
+----
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+----
+
+3. **Install dependencies**:
+[source, bash]
+----
+make install
+----
+
+4. **Verify installation**:
+[source, bash]
+----
+make run
+----
+
+== Development Workflow
+
+=== Daily Development
+
+1. **Activate virtual environment**:
+[source, bash]
+----
+source .venv/bin/activate
+----
+
+2. **Run the application**:
+[source, bash]
+----
+make run
+----
+
+3. **Make changes** to source code
+
+4. **Lint and format**:
+[source, bash]
+----
+make lint
+make format
+----
+
+5. **Test changes**:
+[source, bash]
+----
+pytest tests/
+----
+
+=== Git Workflow
+
+1. **Create feature branch**:
+[source, bash]
+----
+git checkout -b feature/your-feature-name
+----
+
+2. **Make changes and commit**:
+[source, bash]
+----
+git add .
+git commit -m "Add your descriptive commit message"
+----
+
+3. **Push and create pull request**:
+[source, bash]
+----
+git push origin feature/your-feature-name
+----
+
+== Coding Standards
+
+=== Python Style Guidelines
+
+* **Line Length**: Maximum 100 characters
+* **Quotes**: Single quotes for strings
+* **Indentation**: Spaces only (4 spaces per level)
+* **Imports**: Absolute imports from project root
+* **Type Hints**: Required for all function parameters and return values
+
+=== Docstring Requirements
+
+* **Format**: Triple quotes for all classes and methods
+* **Content**: Include purpose, parameters, and return values
+* **Style**: Follow Google docstring conventions
+
+[source, python]
+----
+def example_function(param1: str, param2: int) -> bool:
+    '''
+    Example function demonstrating docstring format.
+
+    Args:
+        param1 (str): Description of the first parameter.
+        param2 (int): Description of the second parameter.
+
+    Returns:
+        bool: Description of the return value.
+    '''
+    return True
+----
+
+=== Naming Conventions
+
+* **Classes**: PascalCase (e.g., `BallBounceView`)
+* **Methods/Functions**: snake_case (e.g., `get_normal`)
+* **Variables**: snake_case (e.g., `ball_velocity`)
+* **Constants**: UPPER_CASE (e.g., `GRAVITY`)
+
+== Project Structure Extensions
+
+=== Adding New Game Objects
+
+To add a new game object:
+
+1. **Create the object class** in `src/objects/`:
+[source, python]
+----
+from pygame.sprite import Sprite
+from pygame import Vector2
+
+class NewObject(Sprite):
+    '''
+    Description of the new object.
+    '''
+    
+    def __init__(self, x: int, y: int, ...):
+        '''
+        Initialize the new object.
+        
+        Args:
+            x (int): X position.
+            y (int): Y position.
+        '''
+        super().__init__()
+        # Implementation
+----
+
+2. **Implement required methods**:
+[source, python]
+----
+def update(self):
+    '''Update object state.'''
+    pass
+
+def draw(self, screen):
+    '''Draw the object on screen.'''
+    pass
+
+def get_normal(self, ball: Sprite) -> Vector2:
+    '''Calculate collision normal.'''
+    # Implementation
+----
+
+3. **Add to board** in appropriate view:
+[source, python]
+----
+new_object = NewObject(x=100, y=200, ...)
+self.board.add_components([new_object])
+----
+
+=== Adding New Views/Demos
+
+To add a new demo view:
+
+1. **Create the view class** in `src/views/demos/`:
+[source, python]
+----
+from views.view import View
+
+class NewDemoView(View):
+    '''
+    Description of the new demo.
+    '''
+    
+    def __init__(self, screen):
+        '''
+        Initialize the new demo view.
+        
+        Args:
+            screen (pygame.Surface): The display surface.
+        '''
+        super().__init__(screen)
+        # Setup code
+        
+    def update(self):
+        '''Update demo state.'''
+        pass
+        
+    def draw(self):
+        '''Draw the demo.'''
+        pass
+        
+    def handle_event(self, event):
+        '''Handle events.'''
+        return self
+----
+
+2. **Add to home view**:
+[source, python]
+----
+# In HomeView.__init__
+self.available_views.append({
+    'name': 'New Demo',
+    'class': NewDemoView,
+    'key': pygame.K_5  # Next available key
+})
+----
+
+=== Adding New Physics Features
+
+To extend physics capabilities:
+
+1. **Add constants** to `src/core/world.py`:
+[source, python]
+----
+# New physics constants
+AIR_RESISTANCE = 0.01
+FRICTION_COEFFICIENT = 0.1
+----
+
+2. **Implement physics logic** in relevant objects:
+[source, python]
+----
+# In Ball.apply_forces()
+# Add air resistance
+air_resistance = -self.velocity * AIR_RESISTANCE
+self.forces.append(air_resistance)
+----
+
+== Testing
+
+=== Running Tests
+
+[source, bash]
+----
+# Run all tests
+pytest tests/
+
+# Run specific test file
+pytest tests/test_file.py
+
+# Run specific test
+pytest tests/test_file.py::test_name
+----
+
+=== Writing Tests
+
+Create test files in `tests/` directory following the naming convention `test_*.py`:
+
+[source, python]
+----
+import pytest
+from objects.ball import Ball
+
+def test_ball_initialization():
+    '''Test ball initialization with default parameters.'''
+    ball = Ball()
+    assert ball.radius == 10
+    assert ball.mass == 1.0
+    assert ball.bounciness == 0.8
+----
+
+=== Test Coverage
+
+Aim for:
+* 80%+ code coverage for core physics
+* 70%+ code coverage for game objects
+* 60%+ code coverage for views
+
+== Debugging
+
+=== Common Issues
+
+**Physics Problems**:
+* Check `core/world.py` constants
+* Verify force application in `Ball.apply_forces()`
+* Ensure collision detection in `Board.get_colliding_balls()`
+
+**Rendering Issues**:
+* Verify `draw()` method implementations
+* Check sprite group management
+* Ensure screen clearing and flipping
+
+**Input Problems**:
+* Verify event handling in `handle_event()` methods
+* Check view transitions
+* Ensure proper event type filtering
+
+=== Debugging Tools
+
+**Print Debugging**:
+[source, python]
+----
+print(f"Ball position: {ball.x}, {ball.y}")
+print(f"Ball velocity: {ball.velocity}")
+print(f"Applied forces: {ball.forces}")
+----
+
+**Visual Debugging**:
+[source, python]
+----
+# Draw collision normals
+pygame.draw.line(screen, (255, 0, 0), 
+                 ball.rect.center, 
+                 (ball.rect.center + normal * 50), 2)
+----
+
+=== Performance Profiling
+
+Use Python's built-in profiler:
+[source, bash]
+----
+python -m cProfile -s tottime src/main.py
+----
+
+== Performance Optimization
+
+=== Rendering Optimization
+
+* Use sprite groups for batch rendering
+* Minimize surface creation and destruction
+* Cache frequently used surfaces
+* Use dirty rectangle updating for complex scenes
+
+=== Physics Optimization
+
+* Implement spatial partitioning for collision detection
+* Use fixed timestep for physics stability
+* Optimize force calculation loops
+* Consider object pooling for frequently created/destroyed objects
+
+=== Memory Optimization
+
+* Reuse surfaces and sprites when possible
+* Clean up unused resources
+* Use weak references for object relationships
+* Monitor memory usage during development
+
+== Deployment
+
+=== Building for Distribution
+
+1. **Create requirements file**:
+[source, bash]
+----
+pip freeze > requirements.txt
+----
+
+2. **Package application** (using PyInstaller):
+[source, bash]
+----
+pip install pyinstaller
+pyinstaller --onefile --windowed src/main.py
+----
+
+=== Version Management
+
+Follow semantic versioning:
+* **Major version**: Breaking changes
+* **Minor version**: New features
+* **Patch version**: Bug fixes
+
+Update version in:
+* `pyproject.toml`
+* Documentation
+* Release notes
+
+== Contributing Guidelines
+
+=== Pull Request Process
+
+1. **Fork the repository**
+2. **Create feature branch**
+3. **Make changes with tests**
+4. **Ensure linting passes**
+5. **Update documentation**
+6. **Submit pull request**
+
+=== Code Review Checklist
+
+* [ ] Code follows project style guidelines
+* [ ] All tests pass
+* [ ] Documentation is updated
+* [ ] Performance impact considered
+* [ ] Security implications reviewed
+* [ ] Backward compatibility maintained
+
+This development guide provides a comprehensive reference for contributing to the Particle Pinball project. Following these guidelines ensures consistency and maintainability across the codebase.
