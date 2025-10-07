@@ -38,11 +38,6 @@ class SpringBounceView(View):
         self.wall_speed = 5
         self.wall_velocity = Vector2(0, 0)
 
-        # Sprite group for the walls, useful for collision detection.
-        self.wall_sprites = pygame.sprite.Group()
-        self.wall_sprites.add(self.moving_wall)
-        self.wall_sprites.add(HorizontalWall(x=0, y=0, width=self.width, height=5, color=(255, 255, 255)))
-
         self.ball = Ball(
             x=self.width // 2,
             y=50,
@@ -53,7 +48,7 @@ class SpringBounceView(View):
         )
 
         self.board = Board(
-            boundaries=self.wall_sprites,
+            boundaries=[self.moving_wall, HorizontalWall(x=0, y=0, width=self.width, height=5, color=(255, 255, 255))],
             balls=[self.ball],
             inclination=1,
         )
