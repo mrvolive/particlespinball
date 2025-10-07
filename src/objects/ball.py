@@ -46,7 +46,7 @@ class Ball(Sprite):
         self.velocity = Vector2(0, 0)
 
     def __str__(self):
-        return f"Ball(pos=({self.x:.2f}, {self.y:.2f}), vel=({self.velocity.x:.2f}, {self.velocity.y:.2f}), mass={self.mass}, radius={self.radius})"
+        return f'Ball(pos=({self.x:.2f}, {self.y:.2f}), vel=({self.velocity.x:.2f}, {self.velocity.y:.2f}), mass={self.mass}, radius={self.radius})'
 
     def update(self):
         """

@@ -17,11 +17,11 @@ class Board(Sprite):
     """
 
     def __init__(
-            self,
-            boundaries: Optional[list[Sprite]] = None,
-            balls: Optional[list[Sprite]] = None,
-            components: Optional[list[Sprite]] = None,
-            inclination=1.0,
+        self,
+        boundaries: Optional[list[Sprite]] = None,
+        balls: Optional[list[Sprite]] = None,
+        components: Optional[list[Sprite]] = None,
+        inclination=1.0,
     ):
         """
         Initialize the board with four walls.

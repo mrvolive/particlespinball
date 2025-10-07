@@ -14,12 +14,13 @@ class App:
     Handles pygame initialization, window management, and the main game loop.
     """
 
-    def __init__(self, 
-                 width: int = 800,
-                 height: int = 600,
-                 fullscreen: bool = True, 
-                 filename: Optional[str] = None
-                 ):
+    def __init__(
+        self,
+        width: int = 800,
+        height: int = 600,
+        fullscreen: bool = True,
+        filename: Optional[str] = None,
+    ):
         """
         Initialize the application.
 

@@ -54,13 +54,27 @@ class BallBounceView(View):
         )
 
     def update(self):
+        """
+        Update the ball bounce demonstration state.
+
+        This method applies gravitational forces to the ball, detects collisions
+        with the horizontal wall, and handles collision response using vector
+        reflection. The ball's velocity is updated based on collision normals
+        and bounciness coefficients to create realistic bouncing behavior.
+
+        The physics simulation includes:
+        - Gravitational force application based on board inclination
+        - Collision detection between ball and horizontal wall
+        - Vector reflection for realistic bouncing behavior
+        - Position and velocity updates for the ball
+        """
         # Appliquer les forces gravitationnelles
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
         # Détection des collisions
         for ball, touched in self.board.get_colliding_balls():
-            if hasattr(touched, "get_normal"):
+            if hasattr(touched, 'get_normal'):
                 normal = touched.get_normal(ball)
                 # formule de reflexion vectoriel :
                 # R = J - 2 * (J . N) * N
@@ -82,3 +96,19 @@ class BallBounceView(View):
         self.screen.fill((0, 0, 0))
 
         self.board.draw(self.screen)
+
+    def handle_event(self, event):
+        """
+        Handle pygame events for the ball bounce demonstration view.
+
+        Currently, this method doesn't handle any specific events and
+        always returns self to stay in the ball bounce view. This can be
+        extended to handle user input for controlling the demonstration.
+
+        Args:
+            event (pygame.event.Event): The pygame event to handle.
+
+        Returns:
+            BallBounceView: Self to remain in the current ball bounce view.
+        """
+        return self

@@ -7,6 +7,7 @@ class View:
 
     Provides a common interface for handling events, updating state, and drawing.
     """
+
     def __init__(self, screen):
         """
         Initialize the view with a reference to the main screen.
