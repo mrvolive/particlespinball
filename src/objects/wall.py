@@ -33,8 +33,3 @@ class Wall(Sprite):
 
     def __str__(self):
         return f"Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})"
-
-    def get_normal(self, ball: Sprite) -> Vector2:
-        # Approximation : direction du centre du mur vers le centre de la balle
-        direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
-        return direction.normalize()
