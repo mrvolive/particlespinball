@@ -2,6 +2,7 @@ import pygame
 from pygame import Rect
 from pygame.color import Color
 
+from input.MouseListener import MouseListener
 from views.demos.ball_bounce_view import BallBounceView
 from views.demos.falling_ball_view import FallingBallView
 from views.demos.spring_bounce_view import SpringBounceView
@@ -118,11 +119,10 @@ class HomeView(View):
                     return button['view_info']['class'](self.screen)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Left mouse button click
+            if MouseListener.is_pressed(MouseListener.MOUSE_LEFT):
                 # Check if any button was clicked by checking mouse position
-                mouse_pos = pygame.mouse.get_pos()
                 for button in self.buttons:
-                    if button['rect'].collidepoint(mouse_pos):
+                    if MouseListener.is_in_rect(button['rect']):
                         return button['view_info']['class'](self.screen)
 
         return self
