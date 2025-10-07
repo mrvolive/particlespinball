@@ -7,7 +7,7 @@ from pygame import Vector2
 from pygame.sprite import Sprite
 
 
-class Wall(Sprite):
+class HorizontalWall(Sprite):
     """
     A wall object that serves as a boundary or obstacle in the pinball game.
 
