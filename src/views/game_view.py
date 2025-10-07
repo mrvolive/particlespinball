@@ -1,6 +1,8 @@
 import pygame
+from pygame import Vector2
 from pygame.color import Color
 
+from core.world import GRAVITY
 from objects.ball import Ball
 from objects.board import Board
 from objects.horizontal_wall import HorizontalWall
@@ -92,35 +94,44 @@ class GameView(View):
             radius=20, color=Color(50, 205, 50)
         )
 
+        self.ball = Ball(
+            x=self.width // 2,
+            y=self.height // 2,
+            radius=10,
+            mass=1,
+            bounciness=0.8,
+            color=(255, 0, 0),
+        )
+        self.ball.velocity = Vector2(4, 0)
+
         self.board = Board(
             boundaries=[leftWall, rightWall, topWall, bottomWall],
             components=[peg1, peg2],
-            balls=[
-                Ball(
-                    x=self.width // 2,
-                    y=self.height // 2,
-                    radius=8,
-                    mass=1.0,
-                    bounciness=0.8,
-                    color=(255, 0, 0),
-                ),
-            ],
+            balls=[self.ball],
             inclination=1,
         )
 
     def update(self):
-        """
-        Update the game state including ball physics.
+        # Appliquer les forces gravitationnelles
+        self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+        self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
-        This method handles the game logic updates including physics
-        calculations, collision detection, and game state management.
+        # Détection des collisions
+        for ball, touched in self.board.get_colliding_balls():
+            if hasattr(touched, "get_normal"):
+                normal = touched.get_normal(ball)
+                # formule de reflexion vectoriel :
+                # R = J - 2 * (J . N) * N
+                # où :
+                #   R = vecteur réfléchi (nouvelle vitesse)
+                #   J = vecteur vitesse initiale
+                #   N = vecteur normal à la surface touchée
+                reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+                ball.velocity = reflected * ball.bounciness
 
-        Returns:
-            GameView: Self for view chaining.
-        """
-        # TODO: Implement game physics and collision detection
-        # self.ball.set_velocity(Vector2(0, 4))
-        # self.ball.update()
+        # Mise à jour des composants
+        self.board.update()
+        self.ball.update()
 
     def draw(self):
         """
