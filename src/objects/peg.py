@@ -8,7 +8,6 @@ from pygame.sprite import Sprite
 from pygame.color import Color
 
 
-
 class Peg(Sprite):
     """
     A small round object that acts as a passive obstacle.
@@ -38,6 +37,19 @@ class Peg(Sprite):
         self.rect = self.image.get_rect(center=(x, y))
 
     def get_normal(self, ball: Sprite) -> Vector2:
+        """
+        Calculate the normal vector from the peg center to the ball center.
+
+        The normal vector points from the peg's center to the ball's center
+        and is used for collision response calculations. If the ball and peg
+        centers coincide, returns a zero vector to avoid division by zero.
+
+        Args:
+            ball (Sprite): The ball sprite to calculate the normal for.
+
+        Returns:
+            Vector2: The normalized direction vector from peg to ball.
+        """
         direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
         if direction.length() == 0:
             return Vector2(0, 0)

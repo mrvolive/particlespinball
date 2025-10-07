@@ -32,8 +32,21 @@ class HorizontalWall(Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
 
     def __str__(self):
-        return f"Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})"
+        return f'Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})'
 
     def get_normal(self, ball: Sprite) -> Vector2:
+        """
+        Calculate the normal vector for collision response with a horizontal wall.
+
+        For horizontal walls, the normal vector points either upward (0, 1) or
+        downward (0, -1) depending on which side of the wall the ball is on.
+        This is used for collision response and ball reflection calculations.
+
+        Args:
+            ball (Sprite): The ball sprite to calculate the normal for.
+
+        Returns:
+            Vector2: The normal vector pointing away from the wall surface.
+        """
         dy = ball.rect.centery - self.rect.centery
         return Vector2(0, 1) if dy < 0 else Vector2(0, -1)
