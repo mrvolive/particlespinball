@@ -1,0 +1,270 @@
+= Physics Overview
+:author: Particle Pinball Team
+:email: contact@particlespinball.dev
+:revnumber: 1.0.0
+:revdate: 2025-10-07
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectnums:
+:icons: font
+:source-highlighter: pygments
+:source-linenums-option: table
+
+This document provides a comprehensive overview of the physics concepts and mathematical formulas implemented in the Particle Pinball project. The simulation uses real-world physics principles with appropriate scaling for an engaging gaming experience.
+
+== Physics Engine Architecture
+
+The physics engine follows a modular design with clear separation of concerns:
+
+[source, python,linenums]
+----
+# Core physics constants and world management
+src/core/world.py
+
+# Physics objects with collision detection
+src/objects/ball.py
+src/objects/board.py
+src/objects/bumper.py
+src/objects/peg.py
+src/objects/horizontal_wall.py
+src/objects/vertical_wall.py
+
+# Time management for fixed timestep physics
+src/utils/time.py
+----
+
+== Key Physics Concepts
+
+=== 1. Newtonian Mechanics
+
+The simulation implements classical mechanics based on Newton's laws of motion:
+
+**Newton's Second Law: F = ma**
+
+[source, python,linenums]
+----
+# src/objects/ball.py:103-105
+acceleration = total_force / self.mass
+----
+
+This fundamental equation governs all motion in the simulation. Forces are accumulated and then converted to acceleration based on the object's mass.
+
+=== 2. Force Accumulation System
+
+Multiple forces can act on objects simultaneously:
+
+[source, python,linenums]
+----
+# src/objects/ball.py:98-101
+total_force = Vector2(0, 0)
+for force in self.forces:
+    total_force += force
+----
+
+This allows for complex interactions like gravity, collision forces, and user input to be combined naturally.
+
+=== 3. Euler Integration
+
+The simulation uses Euler integration for updating position and velocity:
+
+**Velocity Integration: v = v₀ + a·Δt**
+
+[source, python,linenums]
+----
+# src/objects/ball.py:107-109
+self.velocity += acceleration * Clock.dt
+----
+
+**Position Integration: x = x₀ + v·Δt**
+
+[source, python,linenums]
+----
+# src/objects/ball.py:60-63
+self.x += self.velocity.x
+self.y += self.velocity.y
+----
+
+=== 4. Collision Detection and Response
+
+The simulation implements elastic collisions with energy loss through the coefficient of restitution.
+
+**Vector Reflection Formula: R = J - 2(J·N)N**
+
+[source, python,linenums]
+----
+# src/views/demos/ball_bounce_view.py:79-86
+reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+ball.velocity = reflected * ball.bounciness
+----
+
+Where:
+- R = reflected velocity vector
+- J = incident velocity vector
+- N = surface normal vector
+- bounciness = coefficient of restitution (0 to 1)
+
+=== 5. Fixed Timestep Physics
+
+To ensure stable and reproducible physics, the simulation uses a fixed timestep:
+
+[source, python,linenums]
+----
+# src/utils/time.py:35
+Clock.dt = 1.0 / self.frequency  # Fixed physics timestep
+----
+
+The accumulator pattern handles variable frame rates while maintaining physics stability:
+
+[source, python,linenums]
+----
+# src/utils/time.py:62-66
+self._accumulator += Clock.vdt
+while self._accumulator >= Clock.dt:
+    self._update_func()  # Physics update
+    self._accumulator -= Clock.dt
+----
+
+== Physical Constants and Scaling
+
+=== Real-World Constants
+
+[source, python,linenums]
+----
+# src/core/world.py:7-18
+PIXEL_PER_METER = 100    # Scale factor
+GRAVITY = 9.81          # m/s² (Earth's gravity)
+FPS = 60                # Frame rate
+DT = 1.0 / FPS          # Time step (0.0167 seconds)
+----
+
+=== Unit Conversion
+
+The simulation converts between real-world units and pixel coordinates:
+
+[source, python,linenums]
+----
+# Conversion examples
+real_meters = pixels / PIXEL_PER_METER
+pixels = real_meters * PIXEL_PER_METER
+----
+
+== Mathematical Operations
+
+=== Vector Mathematics
+
+The simulation extensively uses 2D vector operations:
+
+[source, python,linenums]
+----
+# Vector operations used throughout the codebase
+vector_addition = v1 + v2
+vector_subtraction = v1 - v2
+scalar_multiplication = v * scalar
+vector_normalization = v.normalize()
+dot_product = v1.dot(v2)
+----
+
+=== Normal Vector Calculations
+
+Different collision surfaces require different normal vector calculations:
+
+**Horizontal Walls:**
+[source, python,linenums]
+----
+# src/objects/horizontal_wall.py:37-52
+dy = ball.rect.centery - self.rect.centery
+return Vector2(0, 1) if dy < 0 else Vector2(0, -1)
+----
+
+**Vertical Walls:**
+[source, python,linenums]
+----
+# src/objects/vertical_wall.py:37-52
+dx = ball.rect.centerx - self.rect.centerx
+return Vector2(1, 0) if dx < 0 else Vector2(-1, 0)
+----
+
+**Circular Objects:**
+[source, python,linenums]
+----
+# src/objects/bumper.py:60-77
+direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+if direction.length() == 0:
+    return Vector2(0, 0)
+return direction.normalize()
+----
+
+== Force Types
+
+=== Gravitational Force
+
+Gravity is the primary force acting on all objects:
+
+[source, python,linenums]
+----
+# src/views/game_view.py:125-127
+self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+----
+
+=== Inclined Plane Physics
+
+The board can be tilted, modifying the effective gravity:
+
+[source, python,linenums]
+----
+# src/views/game_view.py:126-127
+self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
+----
+
+=== Collision Forces
+
+Collision forces are handled through impulse-based collision response using the reflection formula.
+
+== Energy and Momentum
+
+=== Coefficient of Restitution
+
+The bounciness parameter controls energy loss in collisions:
+
+[source, python,linenums]
+----
+# Energy loss in collisions
+ball.velocity = reflected * ball.bounciness
+----
+
+Where bounciness ranges from 0 (perfectly inelastic) to 1 (perfectly elastic).
+
+=== Conservation of Momentum
+
+The collision system preserves momentum in the collision normal direction while allowing energy loss through the coefficient of restitution.
+
+== Performance Considerations
+
+=== Collision Detection Optimization
+
+The simulation uses pygame's built-in collision detection for efficiency:
+
+[source, python,linenums]
+----
+# src/objects/board.py:92-109
+collisions = pygame.sprite.spritecollideany(ball, self.obstacles)
+----
+
+=== Fixed Timestep Benefits
+
+- **Stability**: Prevents physics instability from variable frame rates
+- **Reproducibility**: Same inputs always produce same outputs
+- **Performance**: Allows multiple physics updates per frame if needed
+
+== Educational Value
+
+This physics simulation serves as an excellent educational tool for:
+
+- **Classical Mechanics**: Hands-on experience with Newton's laws
+- **Vector Mathematics**: Practical application of 2D vector operations
+- **Numerical Integration**: Understanding of Euler integration methods
+- **Collision Physics**: Real-world collision response implementation
+- **Game Physics**: Bridging theoretical physics with interactive applications
+
+The codebase demonstrates how theoretical physics concepts translate into practical, interactive simulations while maintaining mathematical accuracy and physical realism.

@@ -1,0 +1,407 @@
+= Force and Motion Physics
+:author: Particle Pinball Team
+:email: contact@particlespinball.dev
+:revnumber: 1.0.0
+:revdate: 2025-10-07
+:toc: left
+:toclevels: 3
+:sectanchors:
+:sectnums:
+:icons: font
+:source-highlighter: pygments
+:source-linenums-option: table
+
+This document provides a detailed explanation of the force and motion physics implemented in the Particle Pinball project, including mathematical formulas, code implementation, and practical examples.
+
+== Newton's Laws of Motion
+
+=== Newton's Second Law: F = ma
+
+The foundation of the physics engine is Newton's second law, which states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{a} = \frac{\vec{F}_{net}}{m}
+++++
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/objects/ball.py:103-105
+acceleration = total_force / self.mass
+----
+
+**Explanation:**
+- `total_force` is the vector sum of all forces acting on the ball
+- `self.mass` is the mass of the ball in kilograms
+- `acceleration` is the resulting acceleration vector in m/s²
+
+=== Force Accumulation System
+
+Multiple forces can act on an object simultaneously. The simulation accumulates all forces before calculating acceleration.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{F}_{net} = \sum_{i=1}^{n} \vec{F}_i
+++++
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/objects/ball.py:98-101
+total_force = Vector2(0, 0)
+for force in self.forces:
+    total_force += force
+----
+
+**Practical Example:**
+A ball experiencing both gravity and a collision force:
+
+[source, python,linenums]
+----
+# Forces acting on a ball
+gravity_force = Vector2(0, GRAVITY * ball.mass)
+collision_force = Vector2(50, -30)  # From collision
+
+# Force accumulation
+ball.forces = [gravity_force, collision_force]
+total_force = gravity_force + collision_force
+----
+
+== Motion Integration
+
+=== Euler Integration for Velocity
+
+The simulation uses Euler integration to update velocity based on acceleration.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{v}_{new} = \vec{v}_{old} + \vec{a} \cdot \Delta t
+++++
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/objects/ball.py:107-109
+self.velocity += acceleration * Clock.dt
+----
+
+**Step-by-Step Explanation:**
+1. Calculate acceleration from net force: `acceleration = total_force / mass`
+2. Multiply acceleration by time step: `acceleration * Clock.dt`
+3. Add to current velocity: `velocity += velocity_change`
+
+**Numerical Example:**
+[source, python,linenums]
+----
+# Example: Ball under gravity
+mass = 0.1  # kg
+gravity_force = Vector2(0, 9.81 * mass)  # (0, 0.981) N
+acceleration = gravity_force / mass  # (0, 9.81) m/s²
+dt = 1/60  # 0.0167 seconds
+velocity_change = acceleration * dt  # (0, 0.163) m/s²
+
+# If initial velocity was (2, 0) m/s
+new_velocity = Vector2(2, 0) + Vector2(0, 0.163)  # (2, 0.163) m/s
+----
+
+=== Euler Integration for Position
+
+Position is updated based on velocity using the same integration method.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{x}_{new} = \vec{x}_{old} + \vec{v} \cdot \Delta t
+++++
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/objects/ball.py:60-63
+self.x += self.velocity.x
+self.y += self.velocity.y
+----
+
+**Coordinate System:**
+- Origin (0, 0) is at the top-left corner of the screen
+- Positive X direction is right
+- Positive Y direction is down (inverted from standard mathematical coordinates)
+- Units are in pixels, converted from meters using `PIXEL_PER_METER`
+
+**Complete Motion Update Cycle:**
+[source, python,linenums]
+----
+# Complete physics update for one frame
+def update(self):
+    # 1. Accumulate all forces
+    total_force = Vector2(0, 0)
+    for force in self.forces:
+        total_force += force
+    
+    # 2. Calculate acceleration (F = ma)
+    acceleration = total_force / self.mass
+    
+    # 3. Update velocity (Euler integration)
+    self.velocity += acceleration * Clock.dt
+    
+    # 4. Update position (Euler integration)
+    self.x += self.velocity.x
+    self.y += self.velocity.y
+    
+    # 5. Clear forces for next frame
+    self.forces.clear()
+----
+
+== Force Types and Applications
+
+=== Gravitational Force
+
+Gravity is a constant downward force acting on all objects with mass.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{F}_g = m \cdot \vec{g}
+++++
+
+Where:
+- m = mass of the object
+- g = gravitational acceleration (9.81 m/s² downward)
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/game_view.py:125-127
+self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+----
+
+**Implementation Details:**
+- Gravity is applied every frame as a constant force
+- The force vector is (0, positive_value) because Y increases downward
+- Force magnitude depends on object mass: heavier objects experience more gravitational force
+
+=== Inclined Plane Physics
+
+When the game board is tilted, the effective gravity changes based on the inclination angle.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{F}_{effective} = m \cdot g \cdot \sin(\theta)
+++++
+
+Where θ is the inclination angle from horizontal.
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/game_view.py:126-127
+self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
+----
+
+**Explanation:**
+- `self.board.inclination` ranges from 0 (horizontal) to 1 (vertical)
+- When inclination = 0: full gravity downward
+- When inclination = 1: no gravity (board is vertical)
+- The negative sign reduces the downward force as inclination increases
+
+=== Collision Forces
+
+Collision forces are handled through impulse-based collision response rather than direct force application.
+
+**Impulse-Momentum Theorem:**
++
+[latexmath]
+++++
+\vec{J} = \Delta \vec{p} = m \cdot \Delta \vec{v}
+++++
+
+Where J is the impulse vector.
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/demos/ball_bounce_view.py:79-86
+reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+ball.velocity = reflected * ball.bounciness
+----
+
+== Vector Mathematics in Physics
+
+=== Vector Addition and Subtraction
+
+Forces and velocities are combined using vector operations.
+
+**Mathematical Formulas:**
++
+[latexmath]
+++++
+\vec{A} + \vec{B} = (A_x + B_x, A_y + B_y)
+++++
++
+[latexmath]
+++++
+\vec{A} - \vec{B} = (A_x - B_x, A_y - B_y)
+++++
+
+**Code Implementation:**
+[source, python,linenum]
+----
+# Vector operations in the codebase
+total_force = force1 + force2  # Vector addition
+relative_velocity = velocity1 - velocity2  # Vector subtraction
+----
+
+=== Scalar Multiplication
+
+Vectors can be scaled by scalar values.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+k \cdot \vec{A} = (k \cdot A_x, k \cdot A_y)
+++++
+
+**Code Implementation:**
+[source, python,linenum]
+----
+# Scalar multiplication examples
+scaled_force = force * 2.0  # Double the force
+damped_velocity = velocity * 0.9  # Reduce velocity by 10%
+----
+
+=== Dot Product
+
+The dot product is used for projection and reflection calculations.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\vec{A} \cdot \vec{B} = A_x \cdot B_x + A_y \cdot B_y
+++++
+
+**Code Implementation:**
+[source, python,linenum]
+----
+# Dot product used in collision reflection
+projection = ball.velocity.dot(normal)
+----
+
+=== Vector Normalization
+
+Unit vectors are used for direction calculations.
+
+**Mathematical Formula:**
++
+[latexmath]
+++++
+\hat{A} = \frac{\vec{A}}{|\vec{A}|}
+++++
+
+**Code Implementation:**
+[source, python,linenum]
+----
+# src/objects/bumper.py:60-77
+direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+if direction.length() == 0:
+    return Vector2(0, 0)
+return direction.normalize()
+----
+
+== Practical Examples
+
+=== Example 1: Ball Falling Under Gravity
+
+[source, python,linenum]
+----
+# Initial conditions
+ball.mass = 0.1  # kg
+ball.velocity = Vector2(0, 0)  # m/s
+ball.position = Vector2(100, 100)  # pixels
+
+# Physics parameters
+GRAVITY = 9.81  # m/s²
+PIXEL_PER_METER = 100
+dt = 1/60  # seconds
+
+# Frame 1
+gravity_force = Vector2(0, GRAVITY * ball.mass)  # (0, 0.981) N
+acceleration = gravity_force / ball.mass  # (0, 9.81) m/s²
+ball.velocity += acceleration * dt  # (0, 0.163) m/s
+ball.position += ball.velocity * PIXEL_PER_METER * dt  # (100, 100.27) pixels
+
+# Frame 2 (velocity accumulates)
+gravity_force = Vector2(0, GRAVITY * ball.mass)  # (0, 0.981) N
+acceleration = gravity_force / ball.mass  # (0, 9.81) m/s²
+ball.velocity += acceleration * dt  # (0, 0.326) m/s
+ball.position += ball.velocity * PIXEL_PER_METER * dt  # (100, 100.81) pixels
+----
+
+=== Example 2: Ball with Multiple Forces
+
+[source, python,linenum]
+----
+# Ball experiencing gravity and wind force
+ball.mass = 0.1  # kg
+ball.velocity = Vector2(1, 0)  # m/s
+
+# Forces acting on ball
+gravity_force = Vector2(0, GRAVITY * ball.mass)  # (0, 0.981) N
+wind_force = Vector2(0.5, 0)  # (0.5, 0) N
+
+# Force accumulation
+total_force = gravity_force + wind_force  # (0.5, 0.981) N
+acceleration = total_force / ball.mass  # (5, 9.81) m/s²
+
+# Update velocity
+dt = 1/60
+ball.velocity += acceleration * dt  # (1.083, 0.163) m/s
+----
+
+== Performance Considerations
+
+=== Force Accumulation Efficiency
+
+The force accumulation system is designed for efficiency:
+
+[source, python,linenum]
+----
+# Efficient force accumulation
+def add_force(self, force: Vector2):
+    self.forces.append(force)
+
+def update(self):
+    # Single loop for force accumulation
+    total_force = Vector2(0, 0)
+    for force in self.forces:
+        total_force += force
+    
+    # Clear forces for next frame
+    self.forces.clear()
+----
+
+=== Memory Management
+
+Forces are cleared each frame to prevent memory leaks:
+
+[source, python,linenum]
+----
+# Prevent memory accumulation
+self.forces.clear()  # Clear after processing
+----
+
+This ensures that forces from previous frames don't accumulate indefinitely, which could lead to memory issues and incorrect physics behavior.
+
+The force and motion system in Particle Pinball provides a realistic and efficient physics simulation that accurately models real-world behavior while maintaining good performance for interactive gameplay.
