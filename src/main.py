@@ -3,6 +3,9 @@ import sys
 import pygame
 
 from typing import Optional
+
+from input.KeyboardListener import KeyboardListener
+from input.MouseListener import MouseListener
 from utils.time import Clock
 from views.home_view import HomeView
 
@@ -70,12 +73,14 @@ class App:
         """
         running = True
         while running:
+            MouseListener.reset_scroll()
+
             for event in pygame.event.get():
-                if event.type == pygame.QUIT or (
-                    event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
-                ):
+                if event.type == pygame.MOUSEWHEEL:
+                    MouseListener.scroll_event(event)
+                elif event.type == pygame.QUIT or KeyboardListener.is_just_pressed(pygame.K_ESCAPE):
                     running = False
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
+                elif KeyboardListener.is_just_pressed(pygame.K_BACKSPACE):
                     self.view = HomeView(self.screen, self.width, self.height, self.font)
                 else:
                     self.view = self.view.handle_event(event)
