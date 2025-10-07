@@ -56,3 +56,9 @@ class Bumper(Sprite):
         The force application is handled during collision detection.
         """
         pass  # Les bumpers sont statiques
+
+    def get_normal(self, ball: Sprite) -> Vector2:
+        direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+        if direction.length() == 0:
+            return Vector2(0, 0)
+        return direction.normalize()

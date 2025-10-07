@@ -102,7 +102,7 @@ class GameView(View):
             bounciness=0.8,
             color=(255, 0, 0),
         )
-        self.ball.velocity = Vector2(4, 0)
+        self.ball.velocity = Vector2(0.2, 0)
 
         self.board = Board(
             boundaries=[leftWall, rightWall, topWall, bottomWall],
