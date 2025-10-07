@@ -3,6 +3,7 @@ A small round object that act as a passive obstacle
 """
 
 import pygame
+from pygame import Vector2
 from pygame.sprite import Sprite
 from pygame.color import Color
 
@@ -35,3 +36,9 @@ class Peg(Sprite):
         self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         pygame.draw.circle(self.image, color, (radius, radius), radius)
         self.rect = self.image.get_rect(center=(x, y))
+
+    def get_normal(self, ball: Sprite) -> Vector2:
+        direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+        if direction.length() == 0:
+            return Vector2(0, 0)
+        return direction.normalize()

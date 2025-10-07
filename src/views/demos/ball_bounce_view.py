@@ -46,6 +46,7 @@ class BallBounceView(View):
             bounciness=0.8,
             color=(255, 0, 0),
         )
+        self.ball.velocity = Vector2(1, 0)
 
         self.board = Board(
             boundaries=self.walls,
