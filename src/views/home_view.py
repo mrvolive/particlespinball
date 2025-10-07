@@ -4,6 +4,7 @@ from pygame.color import Color
 
 from views.demos.ball_bounce_view import BallBounceView
 from views.demos.falling_ball_view import FallingBallView
+from views.demos.spring_bounce_view import SpringBounceView
 from views.game_view import GameView
 from views.view import View
 
@@ -36,6 +37,7 @@ class HomeView(View):
             {'name': 'Pinball Game', 'class': GameView, 'key': pygame.K_1},
             {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_2},
             {'name': 'Ball Bounce Demo', 'class': BallBounceView, 'key': pygame.K_3},
+            {'name': 'Spring Bounce Demo', 'class': SpringBounceView, 'key': pygame.K_4},
         ]
 
         # Create button rectangles for interactive navigation
