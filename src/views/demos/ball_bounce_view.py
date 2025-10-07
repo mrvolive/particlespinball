@@ -3,7 +3,7 @@ from pygame.math import Vector2
 
 from objects.ball import Ball
 from objects.board import Board
-from objects.wall import Wall
+from objects.horizontal_wall import HorizontalWall
 from src.core.world import GRAVITY
 from views.view import View
 
@@ -29,9 +29,9 @@ class BallBounceView(View):
         self.clock = pygame.time.Clock()
 
         self.walls = [
-            Wall(
+            HorizontalWall(
                 x=self.width // 2 - 100,
-                y= self.height // 2 - 100,
+                y=self.height // 2 - 100,
                 width=500,
                 height=5,
                 color=(255, 255, 255),
@@ -59,11 +59,17 @@ class BallBounceView(View):
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
         # Détection des collisions
-        elements = self.board.get_colliding_balls()
-
-        if elements:
-            for ball, touched in elements:
-                ball.set_velocity(Vector2(ball.velocity.x, -ball.velocity.y * ball.bounciness))
+        for ball, touched in self.board.get_colliding_balls():
+            if hasattr(touched, "get_normal"):
+                normal = touched.get_normal(ball)
+                # formule de reflexion vectoriel :
+                # R = J - 2 * (J . N) * N
+                # où :
+                #   R = vecteur réfléchi (nouvelle vitesse)
+                #   J = vecteur vitesse initiale
+                #   N = vecteur normal à la surface touchée
+                reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+                ball.velocity = reflected * ball.bounciness
 
         # Mise à jour des composants
         self.board.update()

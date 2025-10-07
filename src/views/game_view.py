@@ -3,8 +3,9 @@ from pygame.color import Color
 
 from objects.ball import Ball
 from objects.board import Board
+from objects.horizontal_wall import HorizontalWall
 from objects.peg import Peg
-from objects.wall import Wall
+from objects.vertical_wall import VerticalWall
 from views.view import View
 
 
@@ -50,33 +51,33 @@ class GameView(View):
         self.all_sprites = pygame.sprite.Group()
 
         # Create walls
-        leftWall = Wall(
+        leftWall = VerticalWall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) - 300,
             width=wall_width,
             height=wall_length,
-            color=Color(255, 255, 255)
+            color=(255, 255, 255)
         )
-        rightWall = Wall(
+        rightWall = VerticalWall(
             x=(self.width // 2) + 200 - wall_width,
             y=(self.height // 2) - 300,
             width=wall_width,
             height=wall_length,
-            color=Color(255, 255, 255),
+            color=(255, 255, 255),
         )
-        topWall = Wall(
+        topWall = HorizontalWall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) - 300,
             width=400,
             height=wall_width,
-            color=Color(255, 255, 255),
+            color=(255, 255, 255),
         )
-        bottomWall = Wall(
+        bottomWall = HorizontalWall(
             x=(self.width // 2) - 200,
             y=(self.height // 2) + 300 - wall_width,
             width=400,
             height=wall_width,
-            color=Color(255, 255, 255),
+            color=(255, 255, 255),
         )
 
         # Place les pegs à l'intérieur du plateau
@@ -101,7 +102,7 @@ class GameView(View):
                     radius=8,
                     mass=1.0,
                     bounciness=0.8,
-                    color=Color(255, 0, 0),
+                    color=(255, 0, 0),
                 ),
             ],
             inclination=1,
@@ -120,7 +121,6 @@ class GameView(View):
         # TODO: Implement game physics and collision detection
         # self.ball.set_velocity(Vector2(0, 4))
         # self.ball.update()
-
 
     def draw(self):
         """

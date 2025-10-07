@@ -1,5 +1,5 @@
 """
-The walls used to make the board or some obstacles on the board
+The vertical walls used to make the board or some obstacles on the board
 """
 
 import pygame
@@ -7,7 +7,7 @@ from pygame import Vector2
 from pygame.sprite import Sprite
 
 
-class Wall(Sprite):
+class VerticalWall(Sprite):
     """
     A wall object that serves as a boundary or obstacle in the pinball game.
 
@@ -33,3 +33,7 @@ class Wall(Sprite):
 
     def __str__(self):
         return f"Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})"
+
+    def get_normal(self, ball: Sprite) -> Vector2:
+        dx = ball.rect.centerx - self.rect.centerx
+        return Vector2(1, 0) if dx < 0 else Vector2(-1, 0)
