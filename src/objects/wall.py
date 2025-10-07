@@ -4,7 +4,6 @@ The walls used to make the board or some obstacles on the board
 
 import pygame
 from pygame.sprite import Sprite
-from pygame.color import Color
 
 
 class Wall(Sprite):
@@ -15,7 +14,7 @@ class Wall(Sprite):
     boundaries or as static obstacles on the playing field.
     """
 
-    def __init__(self, x, y, width, height, color=Color(255, 255, 255)):
+    def __init__(self, x, y, width, height, color=(255, 255, 255)):
         """
         Initialize a wall object.
 
@@ -30,3 +29,6 @@ class Wall(Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill(color)
         self.rect = self.image.get_rect(topleft=(x, y))
+
+    def __str__(self):
+        return f"Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})"

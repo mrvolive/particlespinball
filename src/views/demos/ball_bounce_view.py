@@ -1,5 +1,4 @@
 import pygame
-from pygame.color import Color
 from pygame.math import Vector2
 
 from objects.ball import Ball
@@ -35,7 +34,7 @@ class BallBounceView(View):
                 y= self.height // 2 - 100,
                 width=500,
                 height=5,
-                color=Color(255, 255, 255),
+                color=(255, 255, 255),
             )
         ]
 
@@ -45,7 +44,7 @@ class BallBounceView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=Color(255, 0, 0),
+            color=(255, 0, 0),
         )
 
         self.board = Board(
@@ -62,7 +61,7 @@ class BallBounceView(View):
 
         if elements:
             for element in elements:
-                print(element)
+                print(element[0], element[1])
             exit()
 
         self.board.update()

@@ -2,8 +2,9 @@
 The board on which everything will take place
 """
 
-from pygame.sprite import Group, Sprite, spritecollideany
 from typing import Optional
+
+from pygame.sprite import Group, Sprite, spritecollideany
 
 
 class Board(Sprite):
@@ -14,11 +15,11 @@ class Board(Sprite):
     """
 
     def __init__(
-        self,
-        boundaries: Optional[list[Sprite]] = None,
-        balls: Optional[list[Sprite]] = None,
-        components: Optional[list[Sprite]] = None,
-        inclination=1.0,
+            self,
+            boundaries: Optional[list[Sprite]] = None,
+            balls: Optional[list[Sprite]] = None,
+            components: Optional[list[Sprite]] = None,
+            inclination=1.0,
     ):
         """
         Initialize the board with four walls.
@@ -86,15 +87,21 @@ class Board(Sprite):
         """
         self.components.remove(*components)
 
-    def get_colliding_balls(self) -> list[Sprite]:
+    def get_colliding_balls(self) -> list[tuple[Sprite, Sprite]]:
         """
-        Get a list of balls that are currently colliding with the board boundaries.
+        Get a list of tuples (ball, touched_element) for balls currently colliding
+        with the board boundaries or components.
 
         Returns:
-            list[Sprite]: List of balls colliding with the board boundaries.
+            list[tuple[Sprite, Sprite]]: List of (ball, touched_element) tuples.
         """
         colliding_balls = []
+        # Crée un Group temporaire contenant boundaries et components
+        all_targets = Group()
+        all_targets.add(*self.boundaries.sprites())
+        all_targets.add(*self.components.sprites())
         for ball in self.balls:
-            if spritecollideany(ball, self.boundaries):
-                colliding_balls.append(ball)
+            touched = spritecollideany(ball, all_targets)
+            if touched:
+                colliding_balls.append((ball, touched))
         return colliding_balls

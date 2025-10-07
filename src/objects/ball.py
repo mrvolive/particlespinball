@@ -4,12 +4,11 @@ Defined by its size, mass and bounciness.
 """
 
 import pygame
+from pygame import Vector2
+from pygame.color import Color
+from pygame.sprite import Sprite
 
 from core.world import DT, time_scale
-from pygame import Vector2
-from pygame.sprite import Sprite
-from pygame.color import Color
-
 
 
 class Ball(Sprite):
@@ -45,6 +44,9 @@ class Ball(Sprite):
 
         self.forces: list[Vector2] = []
         self.velocity = Vector2(0, 0)
+
+    def __str__(self):
+        return f"Ball(pos=({self.x:.2f}, {self.y:.2f}), vel=({self.velocity.x:.2f}, {self.velocity.y:.2f}), mass={self.mass}, radius={self.radius})"
 
     def update(self):
         """
