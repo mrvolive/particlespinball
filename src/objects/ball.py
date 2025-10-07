@@ -45,6 +45,10 @@ class Ball(Sprite):
         self.forces: list[Vector2] = []
         self.velocity = Vector2(0, 0)
 
+        # Store last valid position for collision recovery
+        self.last_valid_x = x
+        self.last_valid_y = y
+
     def __str__(self):
         return f'Ball(pos=({self.x:.2f}, {self.y:.2f}), vel=({self.velocity.x:.2f}, {self.velocity.y:.2f}), mass={self.mass}, radius={self.radius})'
 
@@ -57,6 +61,11 @@ class Ball(Sprite):
         Uses Euler integration: x(t+Δt) = x(t) + v(t)Δt
         """
         self.apply_forces()
+
+        # Store current position as last valid before updating
+        self.last_valid_x = self.x
+        self.last_valid_y = self.y
+
         # Update position using velocity (Euler integration)
         # This is a simple physics simulation step
         self.x += self.velocity.x
@@ -122,3 +131,17 @@ class Ball(Sprite):
             force (Vector2): The force vector to add to the ball.
         """
         self.forces.append(force)
+
+    def revert_to_last_valid_position(self):
+        """
+        Revert the ball to its last known valid position without collision.
+
+        This method is called when the ball is detected in a collision state
+        and needs to be moved back to a position where it wasn't colliding.
+        """
+        self.x = self.last_valid_x
+        self.y = self.last_valid_y
+
+        # Update the pygame rect position
+        if self.rect:
+            self.rect.center = (self.x, self.y)

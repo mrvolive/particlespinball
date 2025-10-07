@@ -1,4 +1,3 @@
-import pygame
 from pygame.math import Vector2
 
 from objects.ball import Ball
@@ -72,22 +71,28 @@ class BallBounceView(View):
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
         self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 
-        # Détection des collisions
-        for ball, touched in self.board.get_colliding_balls():
-            if hasattr(touched, 'get_normal'):
-                normal = touched.get_normal(ball)
-                # formule de reflexion vectoriel :
-                # R = J - 2 * (J . N) * N
-                # où :
-                #   R = vecteur réfléchi (nouvelle vitesse)
-                #   J = vecteur vitesse initiale
-                #   N = vecteur normal à la surface touchée
-                reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
-                ball.velocity = reflected * ball.bounciness
-
         # Mise à jour des composants
         self.board.update()
         self.ball.update()
+
+        # Détection des collisions après mise à jour
+        colliding_balls = self.board.get_colliding_balls()
+        if colliding_balls:
+            for ball, touched in colliding_balls:
+                if hasattr(touched, 'get_normal'):
+                    # Revert to last valid position to prevent overlap
+                    ball.revert_to_last_valid_position()
+
+                    normal = touched.get_normal(ball)
+
+                    # formule de reflexion vectoriel :
+                    # R = J - 2 * (J . N) * N
+                    # où :
+                    #   R = vecteur réfléchi (nouvelle vitesse)
+                    #   J = vecteur vitesse initiale
+                    #   N = vecteur normal à la surface touchée
+                    reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+                    ball.velocity = reflected * ball.bounciness
 
     def draw(self):
         """

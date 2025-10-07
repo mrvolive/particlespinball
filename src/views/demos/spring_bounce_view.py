@@ -85,24 +85,30 @@ class SpringBounceView(View):
         # Apply gravitational force to the ball
         self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
 
-        # Collision detection and response
-        for ball, touched in self.board.get_colliding_balls():
-            if hasattr(touched, 'get_normal'):
-                normal = touched.get_normal(ball)
-                # Invert the normal to point outwards from the collision surface,
-                # as required by the reflection formula.
-                normal *= -1
-
-                reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
-                ball.velocity = reflected * ball.bounciness
-
-                # Spring effect: if the moving wall hits the ball from below
-                if touched == self.moving_wall and self.wall_velocity.y < 0:
-                    ball.velocity.y += self.wall_velocity.y * 1.5
-
         # Update components
         self.board.update()
         self.ball.update()
+
+        # Collision detection and response
+        colliding_balls = self.board.get_colliding_balls()
+        if colliding_balls:
+            for ball, touched in colliding_balls:
+                if hasattr(touched, 'get_normal'):
+                    # Revert to last valid position to prevent overlap
+                    ball.revert_to_last_valid_position()
+
+                    normal = touched.get_normal(ball)
+
+                    # Invert the normal to point outwards from the collision surface,
+                    # as required by the reflection formula.
+                    normal *= -1
+
+                    reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+                    ball.velocity = reflected * ball.bounciness
+
+                    # Spring effect: if the moving wall hits the ball from below
+                    if touched == self.moving_wall and self.wall_velocity.y < 0:
+                        ball.velocity.y += self.wall_velocity.y * 1.5
 
     def draw(self):
         """

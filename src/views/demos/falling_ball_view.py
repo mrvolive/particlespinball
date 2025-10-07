@@ -6,7 +6,7 @@ from objects.ball import Ball
 from objects.board import Board
 from objects.horizontal_wall import HorizontalWall
 from objects.vertical_wall import VerticalWall
-from utils.time import Clock
+
 from views.view import View
 
 

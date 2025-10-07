@@ -34,6 +34,11 @@ class Bumper(Sprite):
         self.strength = strength
         self.color = color
 
+        # Create pygame rect for collision detection
+        self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, color, (radius, radius), radius)
+        self.rect = self.image.get_rect(center=(int(position.x), int(position.y)))
+
     def draw(self, screen: pygame.Surface):
         """
         Draw the bumper on the screen.
