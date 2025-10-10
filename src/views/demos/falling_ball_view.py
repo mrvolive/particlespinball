@@ -1,4 +1,4 @@
-from pygame import Vector2
+from pygame import Color, Vector2
 from pygame.sprite import Sprite
 
 from core.world import GRAVITY
@@ -35,7 +35,7 @@ class FallingBallView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=(255, 0, 0),
+            color=Color(255, 0, 0),
         )
 
         self.board = Board(

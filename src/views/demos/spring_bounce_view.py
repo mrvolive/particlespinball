@@ -43,7 +43,7 @@ class SpringBounceView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=(255, 0, 0),
+            color=pygame.Color(255, 0, 0),
         )
 
         self.board = Board(
@@ -95,7 +95,7 @@ class SpringBounceView(View):
         if would_collide and colliding_object and hasattr(colliding_object, 'get_normal'):
             # Don't move the ball - keep it at current position
             # Just handle the collision response
-            normal = colliding_object.get_normal(self.ball)
+            normal = colliding_object.get_normal(self.ball) # type: ignore (checked with hasattr)
 
             # Invert the normal to point outwards from the collision surface,
             # as required by the reflection formula.
@@ -143,4 +143,3 @@ class SpringBounceView(View):
         running = True
         while running:
             self.process_input()
-            self.clock.tick()
