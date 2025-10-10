@@ -7,6 +7,8 @@ from typing import Optional
 from pygame.sprite import Group, Sprite, spritecollideany
 
 from objects.ball import Ball
+from objects.horizontal_wall import HorizontalWall
+from objects.vertical_wall import VerticalWall
 
 
 class Board(Sprite):
@@ -18,7 +20,7 @@ class Board(Sprite):
 
     def __init__(
         self,
-        boundaries: Optional[list[Sprite]] = None,
+        boundaries: Optional[list[HorizontalWall|VerticalWall]] = None,
         balls: Optional[list[Sprite]] = None,
         components: Optional[list[Sprite]] = None,
         inclination=1.0,

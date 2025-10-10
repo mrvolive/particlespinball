@@ -1,3 +1,4 @@
+from pygame import Color
 from pygame.math import Vector2
 
 from objects.ball import Ball
@@ -42,7 +43,7 @@ class BallBounceView(View):
             radius=10,
             mass=1,
             bounciness=0.8,
-            color=(255, 0, 0),
+            color=Color(255, 0, 0),
         )
         self.ball.velocity = Vector2(1, 0)
 
@@ -77,11 +78,10 @@ class BallBounceView(View):
 
         # Check if the new position would cause a collision
         would_collide, colliding_object = self.board.would_ball_collide(self.ball, new_x, new_y)
-
         if would_collide and colliding_object and hasattr(colliding_object, 'get_normal'):
             # Don't move the ball - keep it at current position
             # Just handle the collision response
-            normal = colliding_object.get_normal(self.ball)
+            normal = colliding_object.get_normal(self.ball) # type: ignore
 
             # formule de reflexion vectoriel :
             # R = J - 2 * (J . N) * N
