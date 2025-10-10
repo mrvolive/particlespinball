@@ -6,7 +6,7 @@ from input.MouseListener import MouseListener
 from views.demos.ball_bounce_view import BallBounceView
 from views.demos.falling_ball_view import FallingBallView
 from views.demos.spring_bounce_view import SpringBounceView
-from views.game_view import GameView
+from views.demos.bumper_view import BumperView
 from views.view import View
 
 
@@ -35,7 +35,7 @@ class HomeView(View):
 
         # Define available views with their display names and keyboard shortcuts
         self.available_views = [
-            {'name': 'Pinball Game', 'class': GameView, 'key': pygame.K_1},
+            {'name': 'Bumper Demo', 'class': BumperView, 'key': pygame.K_1},
             {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_2},
             {'name': 'Ball Bounce Demo', 'class': BallBounceView, 'key': pygame.K_3},
             {'name': 'Spring Bounce Demo', 'class': SpringBounceView, 'key': pygame.K_4},
