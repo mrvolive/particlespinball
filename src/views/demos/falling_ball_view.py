@@ -1,4 +1,5 @@
-from pygame import Color, Vector2
+from pygame import Color, Vector2, KEYDOWN, K_UP, K_DOWN
+from pygame.event import Event
 from pygame.sprite import Sprite
 
 from core.world import GRAVITY
@@ -31,7 +32,7 @@ class FallingBallView(View):
 
         self.ball = Ball(
             x=self.width // 2,
-            y=0,
+            y=self.height // 2,
             radius=10,
             mass=1,
             bounciness=0.8,
@@ -41,7 +42,7 @@ class FallingBallView(View):
         self.board = Board(
             boundaries=self.create_board_boundaries_group(),
             balls=[self.ball],
-            inclination=1,
+            inclination=0,
         )
 
     def update(self):
@@ -113,3 +114,21 @@ class FallingBallView(View):
         )
 
         return [leftWall, rightWall, topWall, bottomWall]
+
+    def handle_event(self, event: Event):
+        """
+        Handle keyboard events to adjust board inclination.
+
+        Args:
+            event (Event): The pygame event to handle
+
+        Returns:
+            FallingBallView: Self for view chaining.
+        """
+        if event.type == KEYDOWN:
+            if event.key == K_UP:
+                self.board.inclination = min(1.0, self.board.inclination + 0.1)
+            elif event.key == K_DOWN:
+                self.board.inclination = max(-1.0, self.board.inclination - 0.1)
+        
+        return self
