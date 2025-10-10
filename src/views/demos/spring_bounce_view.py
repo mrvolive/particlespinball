@@ -55,24 +55,7 @@ class SpringBounceView(View):
             inclination=1,
         )
 
-    def process_input(self):
-        """
-        Handles user input by checking for quit events and the state of keyboard keys.
-        """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
 
-        # Get the state of all keyboard keys for continuous movement.
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_UP]:
-            self.wall_velocity.y = -self.wall_speed
-        elif keys[pygame.K_DOWN]:
-            self.wall_velocity.y = self.wall_speed
-        else:
-            self.wall_velocity.y = 0
 
     def update(self):
         """
@@ -124,9 +107,8 @@ class SpringBounceView(View):
         """
         Handle pygame events for the spring bounce demonstration view.
 
-        Currently, this method doesn't handle any specific events and
-        always returns self to stay in the spring bounce view. This can be
-        extended to handle user input for controlling the demonstration.
+        Handles keyboard input to move the wall up and down, creating a
+        spring-like effect when the wall collides with the ball.
 
         Args:
             event (pygame.event.Event): The pygame event to handle.
@@ -134,12 +116,14 @@ class SpringBounceView(View):
         Returns:
             SpringBounceView: Self to remain in the current spring bounce view.
         """
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.wall_velocity.y = -self.wall_speed
+            elif event.key == pygame.K_DOWN:
+                self.wall_velocity.y = self.wall_speed
+        elif event.type == pygame.KEYUP:
+            if event.key in [pygame.K_UP, pygame.K_DOWN]:
+                self.wall_velocity.y = 0
+        
         return self
 
-    def run(self):
-        """
-        Main game loop.
-        """
-        running = True
-        while running:
-            self.process_input()
