@@ -76,7 +76,8 @@ class Bumper(Sprite):
         Returns:
             Vector2: The normalized direction vector from bumper to ball.
         """
-        direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
-        if direction.length() == 0:
-            return Vector2(0, 0)
-        return direction.normalize()
+        if ball.rect and self.rect:
+            direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+            if direction.length() != 0:
+                return direction.normalize()
+        return Vector2(0, 0)

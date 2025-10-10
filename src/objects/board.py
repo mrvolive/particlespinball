@@ -139,7 +139,7 @@ class Board(Sprite):
 
         # Restore original position
         ball.x, ball.y = original_x, original_y
-        if ball.rect:
+        if ball.rect and original_rect_center:
             ball.rect.center = original_rect_center
 
         return (touched is not None, touched)
