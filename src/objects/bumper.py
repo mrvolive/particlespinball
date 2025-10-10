@@ -4,6 +4,7 @@ A round obstacle that will push back the ball at a given strength
 
 import pygame
 from pygame import Vector2
+from pygame.rect import Rect
 from pygame.sprite import Sprite
 
 
@@ -37,7 +38,7 @@ class Bumper(Sprite):
         # Create pygame rect for collision detection
         self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         pygame.draw.circle(self.image, color, (radius, radius), radius)
-        self.rect = self.image.get_rect(center=(int(position.x), int(position.y)))
+        self.rect: Rect = self.image.get_rect(center=(int(position.x), int(position.y)))
 
     def draw(self, screen: pygame.Surface):
         """

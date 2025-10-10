@@ -4,7 +4,10 @@ The vertical walls used to make the board or some obstacles on the board
 
 import pygame
 from pygame import Vector2
+from pygame.rect import Rect
 from pygame.sprite import Sprite
+
+from objects.ball import Ball
 
 
 class VerticalWall(Sprite):
@@ -29,12 +32,12 @@ class VerticalWall(Sprite):
         super().__init__()
         self.image = pygame.Surface((width, height))
         self.image.fill(color)
-        self.rect = self.image.get_rect(topleft=(x, y))
+        self.rect: Rect = self.image.get_rect(topleft=(x, y))
 
     def __str__(self):
         return f'Wall(x={self.rect.x}, y={self.rect.y}, width={self.rect.width}, height={self.rect.height})'
 
-    def get_normal(self, ball: Sprite) -> Vector2:
+    def get_normal(self, ball: Ball) -> Vector2:
         """
         Calculate the normal vector for collision response with a vertical wall.
 

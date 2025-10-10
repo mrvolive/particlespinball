@@ -4,8 +4,11 @@ A small round object that act as a passive obstacle
 
 import pygame
 from pygame import Vector2
+from pygame.rect import Rect
 from pygame.sprite import Sprite
 from pygame.color import Color
+
+from objects.ball import Ball
 
 
 class Peg(Sprite):
@@ -34,9 +37,9 @@ class Peg(Sprite):
 
         self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         pygame.draw.circle(self.image, color, (radius, radius), radius)
-        self.rect = self.image.get_rect(center=(x, y))
+        self.rect: Rect = self.image.get_rect(center=(x, y))
 
-    def get_normal(self, ball: Sprite) -> Vector2:
+    def get_normal(self, ball: Ball) -> Vector2:
         """
         Calculate the normal vector from the peg center to the ball center.
 

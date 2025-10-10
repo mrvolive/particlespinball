@@ -6,6 +6,7 @@ Defined by its size, mass and bounciness.
 import pygame
 from pygame import Vector2
 from pygame.color import Color
+from pygame.rect import Rect
 from pygame.sprite import Sprite
 
 from utils.time import Clock
@@ -40,7 +41,7 @@ class Ball(Sprite):
 
         self.image = pygame.Surface((2 * radius, 2 * radius), pygame.SRCALPHA)
         pygame.draw.circle(self.image, color, (radius, radius), radius)
-        self.rect = self.image.get_rect(center=(x, y))
+        self.rect: Rect = self.image.get_rect(center=(x, y))
 
         self.forces: list[Vector2] = []
         self.velocity = Vector2(0, 0)

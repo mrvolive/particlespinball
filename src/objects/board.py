@@ -7,9 +7,6 @@ from typing import Optional
 from pygame.sprite import Group, Sprite, spritecollideany
 
 from objects.ball import Ball
-from objects.horizontal_wall import HorizontalWall
-from objects.vertical_wall import VerticalWall
-
 
 class Board(Sprite):
     """
@@ -20,7 +17,7 @@ class Board(Sprite):
 
     def __init__(
         self,
-        boundaries: Optional[list[HorizontalWall|VerticalWall]] = None,
+        boundaries: Optional[list[Sprite]] = None,
         balls: Optional[list[Sprite]] = None,
         components: Optional[list[Sprite]] = None,
         inclination=1.0,
@@ -29,7 +26,7 @@ class Board(Sprite):
         Initialize the board with four walls.
 
         Args:
-            boundaries (list[Wall]): List of four walls defining the board edges
+            boundaries (list[HorizontalWall|VerticalWall]): List of four walls defining the board edges
             inclination (float): Board inclination angle
         """
         super().__init__()

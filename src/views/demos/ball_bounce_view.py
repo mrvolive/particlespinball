@@ -27,7 +27,7 @@ class BallBounceView(View):
         super(BallBounceView, self).__init__(screen)
         self.width, self.height = self.screen.get_size()
 
-        self.walls = [
+        walls = [
             HorizontalWall(
                 x=self.width // 2 - 100,
                 y=self.height // 2 - 100,
@@ -48,7 +48,7 @@ class BallBounceView(View):
         self.ball.velocity = Vector2(1, 0)
 
         self.board = Board(
-            boundaries=self.walls,
+            components=[*walls],
             balls=[self.ball],
             inclination=1,
         )
