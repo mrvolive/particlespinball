@@ -51,7 +51,7 @@ class WindSimulationView(View):
 
         for particle in self.wind_particles[:]:
             particle.update()
-            if not self.screen.get_rect().colliderect(particle.rect):
+            if particle.age > particle.lifetime:
                 particle.kill()
                 self.wind_particles.remove(particle)
 
