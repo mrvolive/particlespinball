@@ -135,7 +135,7 @@ def example_function(param1: str, param2: int) -> bool:
 
 To add a new game object:
 
-1. **Create the object class** in `src/objects/`:
+**Create the object class** in `src/objects/`:
 [source, python]
 ----
 from pygame.sprite import Sprite
@@ -158,7 +158,7 @@ class NewObject(Sprite):
         # Implementation
 ----
 
-2. **Implement required methods**:
+**Implement required methods**:
 [source, python]
 ----
 def update(self):
@@ -174,7 +174,7 @@ def get_normal(self, ball: Sprite) -> Vector2:
     # Implementation
 ----
 
-3. **Add to board** in appropriate view:
+**Add to board** in appropriate view:
 [source, python]
 ----
 new_object = NewObject(x=100, y=200, ...)
@@ -185,7 +185,7 @@ self.board.add_components([new_object])
 
 To add a new demo view:
 
-1. **Create the view class** in `src/views/demos/`:
+**Create the view class** in `src/views/demos/`:
 [source, python]
 ----
 from views.view import View
@@ -218,7 +218,7 @@ class NewDemoView(View):
         return self
 ----
 
-2. **Add to home view**:
+**Add to home view**:
 [source, python]
 ----
 # In HomeView.__init__
@@ -241,7 +241,7 @@ AIR_RESISTANCE = 0.01
 FRICTION_COEFFICIENT = 0.1
 ----
 
-2. **Implement physics logic** in relevant objects:
+**Implement physics logic** in relevant objects:
 [source, python]
 ----
 # In Ball.apply_forces()

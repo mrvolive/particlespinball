@@ -191,7 +191,8 @@ objects/
 ├── horizontal_wall.py  # Horizontal wall obstacles
 ├── vertical_wall.py    # Vertical wall obstacles
 ├── peg.py            # Static circular obstacles
-└── bumper.py         # Dynamic circular obstacles
+├── bumper.py         # Dynamic circular obstacles
+└── wind_particle.py  # Wind particle for simulation
 ----
 
 === Object Hierarchy
@@ -230,7 +231,8 @@ views/
 └── demos/
     ├── falling_ball_view.py     # Gravity demonstration
     ├── ball_bounce_view.py      # Collision demonstration
-    └── spring_bounce_view.py    # Spring physics demonstration
+    ├── spring_bounce_view.py    # Spring physics demonstration
+    └── wind_simulation_view.py  # Wind simulation
 ----
 
 === View Hierarchy

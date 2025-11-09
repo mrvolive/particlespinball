@@ -61,7 +61,8 @@ objects/board.py
 ├── objects/horizontal_wall.py
 ├── objects/vertical_wall.py
 ├── objects/peg.py
-└── objects/bumper.py
+├── objects/bumper.py
+└── objects/wind_particle.py
 
 objects/*.py
 ├── core/world.py (physics constants)
@@ -138,6 +139,7 @@ views/home_view.py
 ├── views/demos/falling_ball_view.py
 ├── views/demos/ball_bounce_view.py
 ├── views/demos/spring_bounce_view.py
+├── views/demos/wind_simulation_view.py
 └── views/view.py (base class)
 
 views/*.py

@@ -10,6 +10,7 @@
 :icons: font
 :source-highlighter: pygments
 :source-linenums-option: table
+:stem:
 
 This document provides a detailed explanation of the force and motion physics implemented in the Particle Pinball project, including mathematical formulas, code implementation, and practical examples.
 
@@ -20,7 +21,6 @@ This document provides a detailed explanation of the force and motion physics im
 The foundation of the physics engine is Newton's second law, which states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{a} = \frac{\vec{F}_{net}}{m}
@@ -43,7 +43,6 @@ acceleration = total_force / self.mass
 Multiple forces can act on an object simultaneously. The simulation accumulates all forces before calculating acceleration.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{F}_{net} = \sum_{i=1}^{n} \vec{F}_i
@@ -79,7 +78,6 @@ total_force = gravity_force + collision_force
 The simulation uses Euler integration to update velocity based on acceleration.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{v}_{new} = \vec{v}_{old} + \vec{a} \cdot \Delta t
@@ -116,7 +114,6 @@ new_velocity = Vector2(2, 0) + Vector2(0, 0.163)  # (2, 0.163) m/s
 Position is updated based on velocity using the same integration method.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{x}_{new} = \vec{x}_{old} + \vec{v} \cdot \Delta t
@@ -167,7 +164,6 @@ def update(self):
 Gravity is a constant downward force acting on all objects with mass.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{F}_g = m \cdot \vec{g}
@@ -215,12 +211,30 @@ self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ba
 - When inclination = 1: no gravity (board is vertical)
 - The negative sign reduces the downward force as inclination increases
 
+=== Wind Force
+
+The wind force is simulated using a particle system. Each particle carries a small amount of momentum and transfers it to the ball upon collision.
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:73-75
+if pygame.sprite.collide_circle(self.ball, particle):
+    force = particle.velocity.normalize() * 0.1
+    self.ball.add_force(force)
+----
+
+**Explanation:**
+- Wind particles are generated at the cursor's position and move towards the ball.
+- When a particle collides with the ball, a small force is applied in the direction of the particle's velocity.
+- The magnitude of the force is proportional to the particle's velocity.
+- The particles have a limited lifetime and disappear after a certain amount of time.
+
 === Collision Forces
 
 Collision forces are handled through impulse-based collision response rather than direct force application.
 
 **Impulse-Momentum Theorem:**
-+
 [latexmath]
 ++++
 \vec{J} = \Delta \vec{p} = m \cdot \Delta \vec{v}
@@ -243,12 +257,10 @@ ball.velocity = reflected * ball.bounciness
 Forces and velocities are combined using vector operations.
 
 **Mathematical Formulas:**
-+
 [latexmath]
 ++++
 \vec{A} + \vec{B} = (A_x + B_x, A_y + B_y)
 ++++
-+
 [latexmath]
 ++++
 \vec{A} - \vec{B} = (A_x - B_x, A_y - B_y)
@@ -267,7 +279,6 @@ relative_velocity = velocity1 - velocity2  # Vector subtraction
 Vectors can be scaled by scalar values.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 k \cdot \vec{A} = (k \cdot A_x, k \cdot A_y)
@@ -286,7 +297,6 @@ damped_velocity = velocity * 0.9  # Reduce velocity by 10%
 The dot product is used for projection and reflection calculations.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \vec{A} \cdot \vec{B} = A_x \cdot B_x + A_y \cdot B_y
@@ -304,7 +314,6 @@ projection = ball.velocity.dot(normal)
 Unit vectors are used for direction calculations.
 
 **Mathematical Formula:**
-+
 [latexmath]
 ++++
 \hat{A} = \frac{\vec{A}}{|\vec{A}|}

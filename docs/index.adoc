@@ -81,6 +81,12 @@ TIP: Get started quickly with these essential documents:
 * Gravitational and inclined plane physics
 * Vector mathematics in physics calculations
 * Practical examples and performance optimization
+
+| <<wind_simulation_view.py#,Wind Simulation Demo>>
+| * Real-time wind force simulation
+* Particle-based force application
+* User-interactive wind source
+* Dynamic particle generation and lifetime management
 |===
 
 

@@ -217,6 +217,19 @@ The board can be tilted, modifying the effective gravity:
 self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
 ----
 
+=== Wind Force
+
+The wind force is simulated using a particle system. Each particle carries a small amount of momentum and transfers it to the ball upon collision.
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:73-75
+if pygame.sprite.collide_circle(self.ball, particle):
+    force = particle.velocity.normalize() * 0.1
+    self.ball.add_force(force)
+----
+
 === Collision Forces
 
 Collision forces are handled through impulse-based collision response using the reflection formula.
