@@ -1,0 +1,102 @@
+= Controlled Ball Demonstration
+
+The Controlled Ball module serves as a standalone demonstration of applied physics controlled by user input. Unlike the main engine, this view implements hardcoded physics to demonstrate the raw mathematical principles of force vectors and Euler integration.
+
+== Mathematical Concepts
+
+=== 1. Diagonal Force Normalization
+
+One of the key mathematical challenges in top-down controller movement is handling diagonal inputs. If we simply add the x and y forces when both keys are pressed, the resulting force vector would be larger than the orthogonal forces.
+
+**Problem:**
+If $F_{up} = 1$ and $F_{right} = 1$, the resulting magnitude is:
+$$ ||\vec{F}|| = \sqrt{1^2 + 1^2} = \sqrt{2} \approx 1.414 $$
+
+**Solution:**
+To ensure consistent acceleration in all directions, we must normalize the diagonal vector by dividing by $\sqrt{2}$.
+
+[source, python]
+----
+# Left Up Diagonal Correction
+self.ax = -self.afus / self.racine2
+self.ay = -self.afus / self.racine2 + self.gravite
+----
+
+This ensures that $||\vec{F}|| = 1$ regardless of direction.
+
+=== 2. Manual Euler Integration
+
+This module demonstrates the fundamental algorithm used to simulate motion: Euler Integration. It updates position based on velocity, and velocity based on acceleration frame-by-frame.
+
+**Equations:**
+$$ v_{t+1} = v_t + a \cdot \Delta t $$
+$$ x_{t+1} = x_t + v_{t+1} \cdot \Delta t $$
+
+**Implementation:**
+[source, python]
+----
+# Apply acceleration to velocity
+self.vx += self.ax
+self.vy += self.ay
+
+# Apply velocity to position
+self.x += self.vx
+self.y += self.vy
+----
+
+== Implementation Details
+
+=== Class Structure
+
+The `ControlledBallView` inherits from the base `View` class but manages its own physics state independently of the `core/world.py` physics engine.
+
+[cols="1,3",options="header"]
+|===
+| Attribute | Description
+| `self.racine2` | Pre-calculated $\sqrt{2}$ using `np.sqrt(2)` for optimization
+| `self.afus` | The magnitude of force applied when a key is pressed
+| `self.gravite` | Constant downward acceleration acting on the ball
+| `self.vx`, `self.vy` | Velocity vectors kept as float for precision
+|===
+
+=== Input Handling logic
+
+The acceleration is recalculated every frame based on the current state of the boolean flags (`key_up`, `key_down`, etc.).
+
+[source, python]
+----
+def _update_acceleration(self):
+    # Determine direction based on active flags
+    # Apply gravity to Y axis in all cases
+    # Normalize vector if two perpendicular keys are active
+----
+
+=== Collision and Damping
+
+Unlike the elastic collisions in the main engine, this module implements a simplified floor collision with damping (energy loss).
+
+[source, python]
+----
+# Floor collision
+if self.y >= floor_y:
+    self.y = floor_y
+
+    # Damping (Energy Loss)
+    self.vx *= 0.8        # Friction
+    self.vy = -self.vy * 0.8  # Restitution
+----
+
+This simulation of friction (`0.8` multiplier) prevents the ball from bouncing forever and mimics real-world energy dissipation.
+
+== Controls
+
+[.controls-grid]
+[cols="1,2",options="header"]
+|===
+| Key | Action
+| **icon:arrow-up[role=blue] UP** | Apply force upwards
+| **icon:arrow-down[role=blue] DOWN** | Apply force downwards (adds to gravity)
+| **icon:arrow-left[role=blue] LEFT** | Apply force to the left
+| **icon:arrow-right[role=blue] RIGHT** | Apply force to the right
+| **icon:space-shuttle[role=green] SPACE** | Reset ball to center
+|===

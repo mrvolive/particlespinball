@@ -87,6 +87,12 @@ TIP: Get started quickly with these essential documents:
 * Particle-based force application
 * User-interactive wind source
 * Dynamic particle generation and lifetime management
+
+| <<controlled_ball_demo.adoc#,Controlled Ball Demo>>
+| * Manual implementation of Euler integration
+* Diagonal vector normalization logic
+* User-controlled force application
+* Simplified damping and friction model
 |===
 
 
