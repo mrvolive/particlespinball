@@ -23,8 +23,6 @@ Particle Pinball est un projet éducatif qui simule un jeu de flipper avec une i
 
 ### Physics Demos
 Le projet inclut plusieurs démonstrations physiques (voir `docs/physics_demo_catalog.md`):
-- Chute libre et gravité
-- Détection et réponse aux collisions
 - Mécanique des flippers
 - Systèmes de rampe et modification de vitesse
 - Champs de force et effets de particules
@@ -71,10 +69,8 @@ python src/main.py
 ### Navigation
 1. **Écran d'accueil**: Menu principal avec boutons interactifs
    - **Clic souris**: Sélectionner une vue
-   - **Touche 1**: Accéder à la démo de chute libre
-   - **Touche 2**: Accéder au jeu de flipper
-2. **Vue de chute libre**: Démonstration de la gravité et de la physique de base
-3. **Vue du jeu**: Simulation complète du flipper
+   - **Touches numériques**: Accéder aux différentes démos
+2. **Vue du jeu**: Simulation complète du flipper
 
 ## Structure du Projet
 
@@ -98,8 +94,7 @@ particlespinball/
 │   │   ├── __init__.py
 │   │   ├── view.py          # Classe de base des vues
 │   │   ├── home_view.py     # Écran d'accueil
-│   │   ├── game_view.py     # Vue principale du jeu
-│   │   └── falling_ball_view.py  # Démonstration de chute
+│   │   └── game_view.py     # Vue principale du jeu
 │   └── main.py              # Point d'entrée de l'application
 ├── docs/
 │   └── physics_demo_catalog.md  # Catalogue des démos physiques
