@@ -1,0 +1,982 @@
+= Wind Simulation Demo Documentation
+
+The Wind Simulation Demo demonstrates particle-based force application using a system of wind particles. Particles are generated at the mouse cursor position and travel toward the ball, transferring momentum upon collision and simulating the effect of wind force on an object.
+
+== Overview
+
+This interactive demo illustrates how multiple small particles can create a continuous, smooth force when acting together. The system generates wind particles at the mouse cursor, which stream toward the ball and transfer momentum upon collision, creating realistic wind-like force effects.
+
+[.demo-highlights]
+* **icon:wind[role=blue] Particle System**: Dynamic generation and management of hundreds of particles
+* **icon:mouse-pointer[role=green] Mouse Control**: Interactive wind source positioned by cursor
+* **icon:plus-circle[role=orange] Force Accumulation**: Many small forces sum to create large effect
+* **icon:cogs[role=purple] Real-time Generation**: 5 particles created every frame
+* **icon:random[role=red] Randomized Velocity**: Natural variation in particle behavior
+
+== Key Physics Concepts
+
+=== Particle-Based Force Application
+
+Unlike applying a single force vector, this demo uses many discrete force carriers (particles) to create a continuous force.
+
+[latexmath]
+++++
+\vec{F}_{total} = \sum_{i=1}^{n} \vec{F}_i
+++++
+
+Where:
+* **F_total** = Total force applied to object
+* **F_i** = Force from individual particle *i*
+* **n** = Number of colliding particles
+
+**Advantages**:
+* Creates natural, smooth force variations
+* Simulates real-world particle interactions
+* Easy to implement complex force patterns
+
+=== Momentum Transfer
+
+Each particle transfers momentum to the ball upon collision.
+
+[latexmath]
+++++
+\Delta \vec{p} = \vec{F} \times \Delta t = m \Delta \vec{v}
+++++
+
+Since Δt is small (one frame), we apply force directly:
+
+[latexmath]
+++++
+\vec{v}_{new} = \vec{v}_{old} + \frac{\vec{F}}{m} \Delta t
+++++
+
+**Implementation**:
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:58-60
+if pygame.sprite.collide_circle(self.ball, particle):
+    force = particle.velocity.normalize() * 0.1
+    self.ball.add_force(force)
+----
+
+=== Distributed Forces
+
+The demo illustrates how many small contributions can create a large, continuous force.
+
+**Force per Particle**:
+[latexmath]
+++++
+\vec{F}_{particle} = \hat{v} \times 0.1
+++++
+
+Where:
+* icon:arrow-right[role=navy] **v̂** = Normalized velocity vector (direction only)
+* icon:arrow-right[role=navy] **0.1** = Force magnitude constant
+
+**Total Force Calculation**:
+If 10 particles collide in one frame:
+[latexmath]
+++++
+\vec{F}_{total} = 10 \times (\hat{v} \times 0.1) = \hat{v} \times 1.0
+++++
+
+=== Particle System Architecture
+
+**Generation**:
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:49-50
+mouse_x, mouse_y = pygame.mouse.get_pos()
+for _ in range(5):
+    self.wind_particles.append(self.create_wind_particle(mouse_x, mouse_y, ball_pos))
+----
+
+**5 particles/frame × 60 frames/sec = 300 particles/sec generated**
+
+**Targeting**:
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:35
+direction = (ball_pos - mouse_pos).normalize()
+----
+
+Particles aim at ball position when created.
+
+**Randomization**:
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:36-37
+angle = random.uniform(-15, 15)
+velocity = direction.rotate(angle) * random.uniform(1, 5)
+----
+
+±15° angle variation creates natural spread.
+Speed varies from 1 to 5 units/frame.
+
+=== Particle Lifetime Management
+
+Particles have finite lifespan to prevent infinite accumulation.
+
+[source, python,linenums]
+----
+# In src/objects/wind_particle.py (referenced)
+class WindParticle(Sprite):
+    def __init__(self, ..., lifetime):
+        self.age = 0
+        self.lifetime = lifetime
+
+# src/views/demos/wind_simulation_view.py:52-56
+for particle in self.wind_particles[:]:
+    particle.update()  # Increases age
+    if particle.age > particle.lifetime:
+        particle.kill()
+        self.wind_particles.remove(particle)
+----
+
+**Automatic Cleanup**:
+* Prevents memory leaks
+* Maintains consistent particle count (~300 on screen)
+* Removes particles that miss the ball
+
+=== Fluid Dynamics Basics
+
+While simplified, the demo demonstrates principles of fluid dynamics:
+
+* **Continuity**: Continuous stream of particles
+* **Flow Direction**: Determined by relative positions
+* **Turbulence**: Random variation creates natural movement
+* **Force Application**: Distributed over many interactions
+
+== Demo Configuration
+
+### Layout
+
+The demo creates an open play area with:
+
+[source]
+----
+Ball (center)  ●
+                  ^
+                  |
+                  |  Particles stream
+                  |
+        Mouse     ●   (wind source)
+----
+
+### Component Specifications
+
+**Ball**:
+* Radius: 20 pixels
+* Mass: 1.0 kg
+* Bounciness: 0.8 (80% energy retention)
+* Initial position: (width//2, height//2) - Center of screen
+* Initial velocity: (0, 0) m/s - Starts at rest
+* Color: White (255, 255, 255)
+
+**Wind Particles**:
+* Radius: 2 pixels
+* Generation rate: 5 particles/frame
+* Velocity magnitude: Random between 1 and 5 units/frame
+* Angle variation: ±15° from target direction
+* Force per particle: 0.1 units (normalized direction × 0.1)
+* Color: Light blue (0, 191, 255)
+* Lifetime: Defined in `WindParticle` class
+
+**Physics Parameters**:
+[source, python,linenums]
+----
+# src/core/world.py
+GRAVITY = 9.81  # m/s²
+
+# src/views/demos/wind_simulation_view.py
+particles_per_frame = 5  # Generation rate
+force_per_particle = 0.1  # Force magnitude
+angle_variation = ±15°  # Randomness
+velocity_range = (1, 5)  # Speed range
+----
+
+### Particle Lifecycle
+
+[.lifecycle]
+. **Creation**:
+.. Generated at mouse cursor position
+.. Aiming toward ball's current position
+.. Velocity randomized (±15°, 1-5 units/frame)
+
+. **Movement**:
+.. Travel in straight line toward ball
+.. Age increases each frame
+
+. **Collision**:
+.. Check circle-circle collision with ball
+.. If colliding, apply force and continue
+
+. **Death**:
+.. Remove when age exceeds lifetime
+.. Remove if user exits demo
+
+== User Controls
+
+### Mouse Interaction
+
+The demo is controlled entirely through mouse position:
+
+**Mouse Cursor** = Wind Source Position
+
+* **Move Mouse**: Change wind source location
+* **Observe**: Particles stream from cursor toward ball
+* **Watch**: Ball accelerates in direction of particle stream
+* **Experiment**: Position cursor to create different force patterns
+
+### Control Strategies
+
+**Push Ball Right**:
+* Position mouse cursor to the left of ball
+* Particles stream from left to right
+* Ball accelerates rightward
+
+**Push Ball Up**:
+* Position mouse cursor below ball
+* Particles stream from below upward
+* Ball accelerates upward
+
+**Hold Ball in Place**:
+* Position mouse cursor near ball's intended position
+* Particles create opposing force to gravity
+* Requires continuous adjustment
+
+**Create Circular Motion**:
+* Move mouse cursor around ball
+* Particles create swirling force pattern
+* Ball moves in approximate circle
+
+**Maximum Acceleration**:
+* Position cursor far from ball
+* Particles travel at maximum speed (5 units/frame)
+* Maximum force accumulation (many particles hitting ball)
+
+== Step-by-Step Walkthrough
+
+### Initialization
+
+[.steps]
+. **Create Ball**: Set up ball at center of screen
+. **Initialize Particle List**: Create empty list for wind particles
+. **Create Board**: Set up empty board (no walls or obstacles)
+. **Set Physics**: Configure particle generation and force parameters
+
+### Physics Update Loop
+
+Each frame (60 FPS):
+
+[.steps]
+. **Get Mouse Position**: Retrieve current cursor coordinates
+[source, python,linenums]
+----
+mouse_x, mouse_y = pygame.mouse.get_pos()
+ball_pos = Vector2(self.ball.x, self.ball.y)
+----
+
+. **Generate Particles**: Create 5 new wind particles
+[source, python,linenums]
+----
+for _ in range(5):
+    self.wind_particles.append(
+        self.create_wind_particle(mouse_x, mouse_y, ball_pos)
+    )
+----
+
+. **Update Existing Particles**: Age and move all particles
+[source, python,linenums]
+----
+for particle in self.wind_particles[:]:
+    particle.update()
+----
+
+. **Remove Dead Particles**: Clean up expired particles
+[source, python,linenums]
+----
+for particle in self.wind_particles[:]:
+    if particle.age > particle.lifetime:
+        particle.kill()
+        self.wind_particles.remove(particle)
+----
+
+. **Check Collisions**: Apply force from colliding particles
+[source, python,linenums]
+----
+for particle in self.wind_particles[:]:
+    if pygame.sprite.collide_circle(self.ball, particle):
+        force = particle.velocity.normalize() * 0.1
+        self.ball.add_force(force)
+----
+
+. **Update Ball**: Apply accumulated forces
+[source, python,linenums]
+----
+self.ball.update()
+----
+
+. **Update Board**: Handle any board updates
+[source, python,linenums]
+----
+self.board.update()
+----
+
+### Particle Creation Process
+
+[source, python,linenums]
+----
+# src/views/demos/wind_simulation_view.py:34-44
+def create_wind_particle(self, x, y, ball_pos):
+    # Calculate direction toward ball
+    direction = (ball_pos - Vector2(x, y)).normalize()
+
+    # Add random variation (±15 degrees)
+    angle = random.uniform(-15, 15)
+    velocity = direction.rotate(angle) * random.uniform(1, 5)
+
+    # Create and return particle
+    return WindParticle(
+        x=x,
+        y=y,
+        radius=2,
+        velocity=velocity,
+        color=(0, 191, 255),
+    )
+----
+
+## Key Observations
+
+### Force Smoothness
+
+Even though force is applied in discrete packets (particles), the overall effect is smooth because:
+
+* Many particles collide each frame (10-20 typical)
+* Random distribution averages out variations
+* High generation rate (300 particles/sec) creates continuity
+
+**Mathematical Justification**:
+[latexmath]
+++++
+\lim_{n \to \infty} \sum_{i=1}^{n} \frac{\vec{F}_i}{n} = \vec{F}_{continuous}
+++++
+
+With n ≈ 15 particles/frame, effect is nearly continuous.
+
+### Ball Acceleration
+
+**Force Calculation**:
+If 15 particles collide in one frame:
+[latexmath]
+++++
+\vec{F}_{total} = 15 \times (\hat{v} \times 0.1) = 1.5 \times \hat{v}
+++++
+
+**Acceleration**:
+[latexmath]
+++++
+\vec{a} = \frac{\vec{F}_{total}}{m} = \frac{1.5 \times \hat{v}}{1.0} = 1.5 \times \hat{v}
+++++
+
+**Velocity Change per Frame**:
+[latexmath]
+++++
+\Delta \vec{v} = \vec{a} \times \Delta t = 1.5 \times \hat{v} \times \frac{1}{60} = 0.025 \times \hat{v}
+++++
+
+After 1 second (60 frames): **1.5 units/second** velocity increase
+
+### Particle Spread
+
+±15° angle variation creates natural particle spread:
+
+* **At distance of 100 pixels**: Spread ≈ 26 pixels wide
+* **At distance of 200 pixels**: Spread ≈ 52 pixels wide
+* **At distance of 400 pixels**: Spread ≈ 104 pixels wide
+
+This creates realistic "fan" or "spray" effect.
+
+### Force Efficiency
+
+Not all particles reach the ball:
+
+* **Particles Generated**: 300/second
+* **Particles Hitting Ball**: ~15-20/second
+* **Efficiency**: ~5-7%
+
+**Why Low Efficiency?**
+* Particles spread out over distance
+* Ball has small collision radius (20 pixels)
+* Many particles miss and expire naturally
+
+**How to Increase Efficiency**:
+* Increase particle generation rate
+* Increase particle radius
+* Reduce angle variation
+* Increase particle lifetime
+
+== Mathematical Analysis
+
+### Total Force Calculation
+
+For *n* colliding particles:
+
+[latexmath]
+++++
+\vec{F}_{total} = \sum_{i=1}^{n} \frac{\vec{v}_i}{|\vec{v}_i|} \times 0.1
+++++
+
+If all particles have similar direction:
+[latexmath]
+++++
+\vec{F}_{total} \approx n \times 0.1 \times \hat{v}_{average}
+++++
+
+**Example**: 15 particles colliding
+[latexmath]
+++++
+|\vec{F}_{total}| = 15 \times 0.1 = 1.5 \text{ units}
+++++
+
+### Velocity Distribution
+
+Particle velocities are uniformly distributed between 1 and 5 units/frame.
+
+**Expected Value**:
+[latexmath]
+++++
+E[v] = \frac{1 + 5}{2} = 3 \text{ units/frame}
+++++
+
+**Standard Deviation**:
+[latexmath]
+++++
+\sigma = \frac{5 - 1}{2\sqrt{3}} \approx 1.15 \text{ units/frame}
+++++
+
+**Implications**:
+* Most particles travel at ~3 units/frame
+* Some are slower (1 unit/frame), some faster (5 units/frame)
+* Variation creates natural, non-uniform force application
+
+### Particle Density
+
+Particles are generated at constant rate but spread out over area.
+
+**Particle Density** (particles per unit area):
+[latexmath]
+++++
+\rho = \frac{\text{Generation Rate}}{\text{Spread Area}}
+++++
+
+**At 100 pixels distance**:
+[latexmath]
+++++
+\rho = \frac{300 \text{ particles/sec}}{\pi \times 26^2 \text{ pixels}^2} \approx 0.14 \text{ particles/pixel}^2\text{/sec}
+++++
+
+**At 400 pixels distance**:
+[latexmath]
+++++
+\rho = \frac{300}{\pi \times 104^2} \approx 0.009 \text{ particles/pixel}^2\text{/sec}
+++++
+
+Force naturally decreases with distance due to lower density!
+
+### Energy Transfer
+
+Each particle transfers kinetic energy to ball.
+
+**Particle Kinetic Energy**:
+[latexmath]
+++++
+E_{particle} = \frac{1}{2}mv^2
+++++
+
+For m = 0.01 (assumed particle mass), v = 3:
+[latexmath]
+++++
+E = 0.5 \times 0.01 \times 9 = 0.045 \text{ units}
+++++
+
+**Energy per Collision**:
+[latexmath]
+++++
+\Delta E = 0.045 \text{ units}
+++++
+
+**Total Energy per Second** (assuming 15 collisions/sec):
+[latexmath]
+++++
+E_{total} = 15 \times 0.045 = 0.675 \text{ units/sec}
+++++
+
+== Educational Applications
+
+### Learning Objectives
+
+After using this demo, students should understand:
+
+[.learning-objectives]
+* **icon:check[role=green] Particle Systems**: How to manage thousands of discrete objects
+* **icon:check[role=green] Distributed Forces**: How many small contributions sum to large effects
+* **icon:check[role=green] Force Accumulation**: Summing forces from multiple sources
+* **icon:check[role=green] Real-time Generation**: Creating and destroying objects dynamically
+* **icon:check[role=green] Natural Variation**: Using randomness for realistic effects
+
+### Classroom Activities
+
+**Activity 1: Force Measurement**
+. Position mouse cursor at different distances from ball
+. Measure ball's acceleration (how long to reach edge)
+. Plot distance vs. acceleration
+. Explain relationship between distance and force
+
+**Activity 2: Particle Counting**
+. Count particles on screen at various mouse positions
+. Count particles hitting ball per second
+. Calculate force efficiency (hitting/total)
+. Discuss why efficiency varies
+
+**Activity 3: Angle Variation Experiment**
+. Modify code to change angle variation (±5°, ±15°, ±30°)
+. Observe how spread changes
+. Measure force effectiveness with different spreads
+. Discuss trade-offs between spread and precision
+
+**Activity 4: Force Balancing**
+. Try to hold ball at specific height using wind
+. Adjust mouse position continuously
+. Time how long you can maintain position
+. Discuss control challenges
+
+**Activity 5: Particle Stream Pattern**
+. Move mouse in circle around ball
+. Observe resulting ball motion
+. Try to create perfect circular motion
+. Discuss force vectors in circular motion
+
+### Physics Principles Illustrated
+
+1. **Newton's Second Law**:
+[latexmath]
+++++
+\vec{F} = m\vec{a}
+++++
+The accumulated force from particles creates acceleration.
+
+2. **Superposition Principle**:
+[latexmath]
+++++
+\vec{F}_{total} = \sum \vec{F}_i
+++++
+Total force is sum of individual particle forces.
+
+3. **Continuity of Matter**:
+Particles create continuous stream like fluid flow.
+
+4. **Statistical Mechanics**:
+Random particle behavior averages to predictable force.
+
+5. **Conservation of Momentum**:
+Momentum transferred from particles to ball.
+
+## Code Implementation
+
+### Key Methods
+
+**WindSimulationView.create_wind_particle()**:
+[source, python,linenums]
+----
+def create_wind_particle(self, x, y, ball_pos):
+    '''Create a new wind particle aimed at ball position.'''
+    # Calculate direction toward ball
+    direction = (ball_pos - Vector2(x, y)).normalize()
+
+    # Add random variation (±15 degrees)
+    angle = random.uniform(-15, 15)
+    velocity = direction.rotate(angle) * random.uniform(1, 5)
+
+    # Create and return particle
+    return WindParticle(
+        x=x,
+        y=y,
+        radius=2,
+        velocity=velocity,
+        color=(0, 191, 255),
+    )
+----
+
+**WindSimulationView.update()**:
+[source, python,linenums]
+----
+def update(self):
+    '''Update game state with particle system.'''
+    # Get mouse position and ball position
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    ball_pos = Vector2(self.ball.x, self.ball.y)
+
+    # Generate new particles
+    for _ in range(5):
+        self.wind_particles.append(
+            self.create_wind_particle(mouse_x, mouse_y, ball_pos)
+        )
+
+    # Update and cleanup existing particles
+    for particle in self.wind_particles[:]:
+        particle.update()
+        if particle.age > particle.lifetime:
+            particle.kill()
+            self.wind_particles.remove(particle)
+
+    # Apply forces from colliding particles
+    for particle in self.wind_particles[:]:
+        if pygame.sprite.collide_circle(self.ball, particle):
+            force = particle.velocity.normalize() * 0.1
+            self.ball.add_force(force)
+
+    # Update ball and board
+    self.ball.update()
+    self.board.update()
+----
+
+### Configuration Options
+
+**Adjustable Parameters**:
+[source, python,linenums]
+----
+# In src/views/demos/wind_simulation_view.py
+
+# Particle generation
+particles_per_frame = 5  # 1 to 10 recommended
+angle_variation = random.uniform(-15, 15)  # ±5° to ±30°
+velocity_range = (1, 5)  # Speed range
+
+# Force application
+force_per_particle = 0.1  # 0.05 to 0.2 recommended
+
+# Ball settings
+ball_bounciness = 0.8  # Not used (no walls)
+ball_mass = 1.0  # kg
+----
+
+**Customization Examples**:
+
+**Gentle Breeze** (softer force):
+[source, python,linenums]
+----
+particles_per_frame = 2  # Fewer particles
+force_per_particle = 0.05  # Weaker force
+velocity_range = (1, 3)  # Slower particles
+----
+
+**Strong Wind** (powerful force):
+[source, python,linenums]
+----
+particles_per_frame = 10  # Many particles
+force_per_particle = 0.2  # Stronger force
+velocity_range = (3, 7)  # Faster particles
+----
+
+**Tight Focus** (precise control):
+[source, python,linenums]
+----
+angle_variation = random.uniform(-5, 5)  # Less spread
+velocity_range = (4, 5)  # Consistent speed
+----
+
+## Advanced Topics
+
+### Adaptive Force Scaling
+
+Make force scale with particle speed:
+
+[source, python,linenums]
+----
+def get_particle_force(self, particle):
+    '''Calculate force based on particle velocity.'''
+    speed = particle.velocity.length()
+
+    # Faster particles = stronger force
+    force_magnitude = 0.1 * (speed / 5.0)
+
+    return particle.velocity.normalize() * force_magnitude
+
+# In collision handling
+if pygame.sprite.collide_circle(self.ball, particle):
+    force = self.get_particle_force(particle)
+    self.ball.add_force(force)
+----
+
+### Visual Force Feedback
+
+Draw force vectors for better understanding:
+
+[source, python,linenums]
+----
+def draw_force_vectors(self):
+    '''Visualize force application.'''
+    for particle in self.wind_particles:
+        # Check distance to ball
+        dist = (Vector2(particle.rect.center) -
+                Vector2(self.ball.rect.center)).length()
+
+        # Draw force vector for nearby particles
+        if dist < 100:
+            force = particle.velocity.normalize() * 0.1
+            start = particle.rect.center
+            end = (start[0] + force.x * 1000,
+                    start[1] + force.y * 1000)
+
+            # Color based on force strength
+            color = (min(255, int(particle.velocity.length() * 50)),
+                      100, 100)
+
+            pygame.draw.line(self.screen, color, start, end, 1)
+
+def draw(self):
+    self.screen.fill((0, 0, 0))
+    self.board.draw(self.screen)
+    for particle in self.wind_particles:
+        particle.draw(self.screen)
+    self.ball.draw(self.screen)
+    self.draw_force_vectors()
+    pygame.display.flip()
+----
+
+### Particle Trails
+
+Add visual trails for particles:
+
+[source, python,linenums]
+----
+class WindParticle(Sprite):
+    def __init__(self, x, y, radius, velocity, color):
+        super().__init__()
+        self.rect = pygame.Rect(x - radius, y - radius, radius*2, radius*2)
+        self.velocity = velocity
+        self.color = color
+        self.age = 0
+        self.lifetime = 60
+        self.trail = []  # Store positions
+        self.max_trail = 5
+
+    def update(self):
+        self.rect.x += self.velocity.x
+        self.rect.y += self.velocity.y
+        self.age += 1
+
+        # Add to trail
+        self.trail.append((self.rect.centerx, self.rect.centery))
+        if len(self.trail) > self.max_trail:
+            self.trail.pop(0)
+
+    def draw(self, screen):
+        # Draw trail
+        if len(self.trail) > 1:
+            pygame.draw.lines(screen, self.color, False, self.trail, 1)
+
+        # Draw particle
+        pygame.draw.circle(screen, self.color, self.rect.center, self.radius)
+----
+
+### Wind Direction Indicator
+
+Show where wind is coming from:
+
+[source, python,linenums]
+----
+def draw_wind_indicator(self):
+    '''Draw arrow showing wind source direction.'''
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    ball_x, ball_y = self.ball.rect.center
+
+    # Calculate direction
+    dx = ball_x - mouse_x
+    dy = ball_y - mouse_y
+    length = math.sqrt(dx*dx + dy*dy)
+
+    if length > 0:
+        # Normalize and scale
+        arrow_length = 50
+        dx = (dx / length) * arrow_length
+        dy = (dy / length) * arrow_length
+
+        # Draw arrow
+        pygame.draw.line(self.screen, (0, 255, 0),
+                         (ball_x, ball_y),
+                         (ball_x - dx, ball_y - dy), 3)
+
+        # Draw arrowhead
+        angle = math.atan2(-dy, -dx)
+        arrow_size = 10
+        for offset in [-math.pi/6, math.pi/6]:
+            end_x = (ball_x - dx) + arrow_size * math.cos(angle + offset)
+            end_y = (ball_y - dy) + arrow_size * math.sin(angle + offset)
+            pygame.draw.line(self.screen, (0, 255, 0),
+                             (ball_x - dx, ball_y - dy),
+                             (end_x, end_y), 3)
+
+def draw(self):
+    self.screen.fill((0, 0, 0))
+    self.board.draw(self.screen)
+    for particle in self.wind_particles:
+        particle.draw(self.screen)
+    self.ball.draw(self.screen)
+    self.draw_wind_indicator()
+    pygame.display.flip()
+----
+
+## Troubleshooting
+
+### Ball Doesn't Move
+
+**Symptoms**: Ball stays stationary despite wind particles
+
+**Causes**:
+* Force too weak
+* Ball mass too high
+* Particles missing ball
+* Not enough particles
+
+**Solutions**:
+[source, python,linenums]
+----
+# Increase force per particle
+force = particle.velocity.normalize() * 0.2  # Was 0.1
+
+# Decrease ball mass
+ball.mass = 0.5  # Was 1.0
+
+# Increase particle generation
+for _ in range(10):  # Was 5
+    self.wind_particles.append(...)
+
+# Reduce angle variation (more hits)
+angle = random.uniform(-5, 5)  # Was ±15
+----
+
+### Performance Issues
+
+**Symptoms**: Demo runs slowly, lags
+
+**Causes**:
+* Too many particles on screen
+* Inefficient collision detection
+* Particle lifetime too long
+
+**Solutions**:
+[source, python,linenums]
+----
+# Reduce particle generation
+for _ in range(3):  # Was 5
+    self.wind_particles.append(...)
+
+# Reduce particle lifetime
+particle.lifetime = 40  # Was 60
+
+# Optimize collision detection
+# Only check particles near ball
+for particle in self.wind_particles:
+    dist = (Vector2(particle.rect.center) -
+            Vector2(self.ball.rect.center)).length()
+    if dist < ball.radius + particle.radius + 50:
+        # Check collision
+        if pygame.sprite.collide_circle(self.ball, particle):
+            force = particle.velocity.normalize() * 0.1
+            self.ball.add_force(force)
+----
+
+### Memory Leak
+
+**Symptoms**: Performance degrades over time
+
+**Causes**:
+* Particles not being removed
+* Dead particles accumulating
+
+**Solutions**:
+[source, python,linenums]
+----
+# Ensure particles are removed
+for particle in self.wind_particles[:]:
+    particle.update()
+    if particle.age > particle.lifetime:
+        particle.kill()  # Important!
+        self.wind_particles.remove(particle)  # Important!
+
+# Verify removal
+print(f"Particle count: {len(self.wind_particles)}")  # Should be ~300
+----
+
+### Particles Not Aiming Correctly
+
+**Symptoms**: Particles don't target ball properly
+
+**Causes**:
+* Direction calculation incorrect
+* Ball position not updating
+* Mouse position not retrieved correctly
+
+**Solutions**:
+[source, python,linenums]
+----
+# Verify direction calculation
+ball_pos = Vector2(self.ball.x, self.ball.y)  # Use ball.x, ball.y
+mouse_pos = Vector2(mouse_x, mouse_y)
+direction = (ball_pos - mouse_pos).normalize()
+
+# Debug: print positions
+print(f"Ball: {ball_pos}, Mouse: {mouse_pos}")
+print(f"Direction: {direction}")
+----
+
+## Related Resources
+
+### Documentation Files
+
+* `docs/physics_demo_catalog.md` - Overview of all demos
+* `docs/physics_overview.adoc` - Physics engine fundamentals
+* `docs/force_and_motion.adoc` - Force accumulation and momentum
+* `docs/bumper_demo.adoc` - Alternative collision demo
+
+### Source Code
+
+* `src/views/demos/wind_simulation_view.py` - Main demo implementation
+* `src/objects/wind_particle.py` - Wind particle object
+* `src/objects/ball.py` - Ball physics object
+* `src/objects/board.py` - Board management
+* `src/core/world.py` - Physics constants
+
+### External References
+
+* https://en.wikipedia.org/wiki/Particle_system[Particle System - Wikipedia]
+* https://en.wikipedia.org/wiki/Fluid_dynamics[Fluid Dynamics - Wikipedia]
+* https://en.wikipedia.org/wiki/Computational_fluid_dynamics[Computational Fluid Dynamics - Wikipedia]
+
+## Summary
+
+The Wind Simulation Demo provides a fascinating exploration of particle-based force application. By generating hundreds of particles that stream toward a target object, users can observe and understand:
+
+* **Particle Systems**: How to manage thousands of discrete objects efficiently
+* **Distributed Forces**: How many small contributions create large, continuous effects
+* **Force Accumulation**: Summing forces from multiple sources in real-time
+* **Natural Variation**: Using randomness to create realistic, organic behavior
+* **Interactive Control**: How user input creates physical phenomena
+
+This demo is particularly valuable for:
+* Students learning particle systems and distributed computing
+* Game developers implementing fluid-like effects
+* Anyone interested in fluid dynamics basics
+* Those wanting to understand how real-world forces can be simulated
+
+**Launch the demo**: Press `3` from the home screen
+**Experiment**: Move mouse cursor to create different wind patterns
+**Learn**: Observe how many small particles create smooth, continuous force
+
+---
+
+*Last Updated: 2025-10-07*
+*Version: 1.0.0*
+*Authors: Particle Pinball Team*

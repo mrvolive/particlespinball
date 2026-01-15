@@ -1,4 +1,5 @@
 = Controlled Ball Demonstration
+:stem: latexmath
 
 The Controlled Ball module serves as a standalone demonstration of applied physics controlled by user input. Unlike the main engine, this view implements hardcoded physics to demonstrate the raw mathematical principles of force vectors and Euler integration.
 

@@ -136,8 +136,6 @@ The `views/` module handles all user interface aspects and manages the presentat
 ----
 views/home_view.py
 ├── views/game_view.py
-├── views/demos/falling_ball_view.py
-├── views/demos/ball_bounce_view.py
 ├── views/demos/spring_bounce_view.py
 ├── views/demos/wind_simulation_view.py
 └── views/view.py (base class)
@@ -233,7 +231,7 @@ Physics calculations and updates
 6. Collision response → velocity reflection
 7. Board.update() → all objects updated
 8. View.draw() → render updated state
----
+----
 
 === User Input to Game Action
 

@@ -31,82 +31,12 @@ TIP: Get started quickly with these essential documents:
 | <<development_guide.adoc#,Development Guide>> | Setup, coding standards, and workflows
 |===
 
-== Documentation Structure
-
-=== Core Documentation
-
-[cols="1,4",options="header"]
-|===
-| Document | Content Coverage
-| <<project_overview.adoc#,Project Overview>> 
-| * Purpose and goals of the project
-* Key features and capabilities
-* Technology stack and requirements
-* Getting started instructions
-
-| <<architecture.adoc#,Architecture>>
-| * Module organization and responsibilities
-* Design patterns and principles
-* Data flow and interactions
-* Extensibility considerations
-
-| <<module_interactions.adoc#,Module Interactions>>
-| * Detailed module communication patterns
-* Data flow between components
-* Dependency relationships
-* Performance considerations
-
-| <<development_guide.adoc#,Development Guide>>
-| * Environment setup and configuration
-* Coding standards and best practices
-* Testing and debugging procedures
-* Contribution guidelines
-|===
-
-=== Physics Documentation
-
-[cols="1,4",options="header"]
-|===
-| Document | Topics Covered
-| <<physics_overview.adoc#,Physics Overview>>
-| * Complete physics engine architecture
-* Key physics concepts and mathematical formulas
-* Physical constants and scaling
-* Vector mathematics and operations
-* Performance considerations and educational value
-
-| <<force_and_motion.adoc#,Force and Motion Physics>>
-| * Newton's laws of motion implementation
-* Force accumulation and integration methods
-* Gravitational and inclined plane physics
-* Vector mathematics in physics calculations
-* Practical examples and performance optimization
-
-| <<wind_simulation_view.py#,Wind Simulation Demo>>
-| * Real-time wind force simulation
-* Particle-based force application
-* User-interactive wind source
-* Dynamic particle generation and lifetime management
-
-| <<controlled_ball_demo.adoc#,Controlled Ball Demo>>
-| * Manual implementation of Euler integration
-* Diagonal vector normalization logic
-* User-controlled force application
-* Simplified damping and friction model
-|===
-
-
-
-NOTE: The API Reference file has been removed from the documentation. For detailed API information, please refer to the source code docstrings and individual module documentation.
-
 == Getting Started
 
 === Prerequisites
 
 [role="prerequisites"]
 * **icon:python[role=red] Python 3.13+** - Latest Python version required
-* **icon:graduation-cap[role=blue] Physics Basics** - Understanding of fundamental physics concepts
-* **icon:gamepad[role=green] Pygame Knowledge** - Helpful but not required (we'll teach you!)
 
 === Installation
 
@@ -189,31 +119,6 @@ This project serves as an educational tool for:
 * **icon:code[role=olive] Game Development** - Complete game development pipeline
 * **icon:sitemap[role=lime] Software Architecture** - Modular design principles
 * **icon:python[role=fuchsia] Python Programming** - Practical Python application development
-
-== Contributing
-
-We welcome contributions! Please see the <<development_guide.adoc#,Development Guide>> for:
-
-[.contribution-items]
-* **icon:file-code[role=blue] Coding Standards** - Conventions and best practices
-* **icon:flask[role=green] Testing Requirements** - Test coverage and quality assurance
-* **icon:code-branch[role=orange] Pull Request Process** - Submission and review guidelines
-* **icon:book[role=purple] Documentation Guidelines** - Keeping docs up to date
-
-== License
-
-This project is licensed under the terms specified in the link:LICENSE[LICENSE file].
-
-== Support
-
-For questions, issues, or contributions:
-
-[.support-options]
-* **icon:search[role=blue] Check Documentation** - Review existing docs first
-* **icon:issues[role=orange] Review Issues** - Browse open and closed issues
-* **icon:bug[role=red] Report Bugs** - Create new issues for problems
-* **icon:lightbulb[role=yellow] Request Features** - Suggest improvements
-* **icon:handshake[role=green] Follow Guidelines** - Adhere to contribution standards
 
 == Navigation
 

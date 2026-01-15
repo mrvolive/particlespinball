@@ -64,8 +64,6 @@ The Particle Pinball project is a physics-based simulation game that demonstrate
 
 | **icon:desktop[role=teal] Multiple Demos**
 | 
-* Falling ball demonstration
-* Ball bounce and collision physics
 * Spring mechanics and oscillation
 * Wind simulation and particle-based forces
 * Inclined plane experiments
@@ -160,8 +158,6 @@ src/
 │   ├── home_view.py     # Main menu screen
 │   ├── game_view.py     # Main pinball game
 │   └── demos/          # Physics demonstrations
-│       ├── falling_ball_view.py     # Gravity demonstration
-│       ├── ball_bounce_view.py      # Collision demonstration
 │       ├── spring_bounce_view.py    # Spring physics demonstration
 │       └── wind_simulation_view.py  # Wind simulation
 └── main.py         # Application entry point

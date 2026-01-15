@@ -229,8 +229,6 @@ views/
 ├── home_view.py             # Main menu screen
 ├── game_view.py             # Main pinball game
 └── demos/
-    ├── falling_ball_view.py     # Gravity demonstration
-    ├── ball_bounce_view.py      # Collision demonstration
     ├── spring_bounce_view.py    # Spring physics demonstration
     └── wind_simulation_view.py  # Wind simulation
 ----

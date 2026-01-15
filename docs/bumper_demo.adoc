@@ -1,0 +1,716 @@
+= Bumper Demo Documentation
+
+The Bumper Demo simulates a complete pinball game environment, demonstrating collision detection, vector reflection, and energy conservation through interactions with circular obstacles (pegs) and boundary walls. This documentation covers the physics principles, implementation details, and educational value of the demo.
+
+== Overview
+
+The Bumper Demo creates a classic pinball-style environment where a ball bounces off static circular obstacles (pegs) within boundary walls. This simulation demonstrates fundamental physics concepts including:
+
+[.demo-highlights]
+* **icon:arrow-circle-down[role=blue] Collision Detection** - Precise detection between ball and obstacles
+* **icon:sync[role=green] Vector Reflection** - Realistic bounce behavior using vector mathematics
+* **icon:battery-half[role=orange] Energy Conservation** - Understanding coefficient of restitution
+* **icon:mountain[role=purple] Inclined Plane Physics** - Gravity modification based on board tilt
+* **icon:graduation-cap[role=red] Educational Tool** - Hands-on learning of classical mechanics
+
+== Key Physics Concepts
+
+=== Vector Reflection
+
+The cornerstone of this demo is the vector reflection formula, which calculates how velocity changes after colliding with a surface.
+
+[latexmath]
+++++
+\vec{R} = \vec{J} - 2(\vec{J} \cdot \vec{N})\vec{N}
+++++
+
+Where:
+* icon:arrow-right[role=navy] **R** = Reflected velocity vector (new velocity)
+* icon:arrow-right[role=navy] **J** = Incident velocity vector (original velocity)
+* icon:arrow-right[role=navy] **N** = Normal vector at collision point (perpendicular to surface)
+* icon:arrow-right[role=navy] **·** = Dot product operation
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/demos/bumper_view.py:147-148
+reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+self.ball.velocity = reflected * self.ball.bounciness
+----
+
+The formula works by:
+. Projecting the incident velocity onto the normal: `J · N`
+. Subtracting twice the projection from the incident velocity
+. Resulting in a velocity vector reflected across the surface normal
+
+=== Coefficient of Restitution
+
+The coefficient of restitution (bounciness) determines how much kinetic energy is retained after collision.
+
+[latexmath]
+++++
+v_{after} = v_{reflected} \times e
+++++
+
+Where *e* is the coefficient of restitution (0 to 1).
+
+* **e = 1**: Perfectly elastic collision (100% energy retained)
+* **e = 0**: Perfectly inelastic collision (0% energy retained)
+* **e = 0.8**: Realistic bounce (80% energy retained - default value)
+
+**In the Demo:**
+[source, python,linenums]
+----
+# src/objects/ball.py:97-100
+self.ball.velocity = reflected * self.ball.bounciness
+# With bounciness = 0.8, 20% of energy is lost per collision
+----
+
+=== Normal Vector Calculation
+
+For accurate reflection, we need the surface normal vector at the collision point. Different shapes require different normal calculations.
+
+**Circular Obstacles (Pegs):**
+The normal points from the obstacle center to the collision point.
+
+[source, python,linenums]
+----
+# src/objects/bumper.py:60-77
+direction = Vector2(ball.rect.center) - Vector2(self.rect.center)
+if direction.length() == 0:
+    return Vector2(0, 0)  # Degenerate case
+return direction.normalize()
+----
+
+**Horizontal Walls:**
+The normal is always vertical (up or down).
+
+[source, python,linenums]
+----
+# src/objects/horizontal_wall.py:37-52
+dy = ball.rect.centery - self.rect.centery
+return Vector2(0, 1) if dy < 0 else Vector2(0, -1)
+----
+
+**Vertical Walls:**
+The normal is always horizontal (left or right).
+
+[source, python,linenums]
+----
+# src/objects/vertical_wall.py:37-52
+dx = ball.rect.centerx - self.rect.centerx
+return Vector2(1, 0) if dx < 0 else Vector2(-1, 0)
+----
+
+=== Inclined Plane Physics
+
+When the game board is tilted, effective gravity changes based on the inclination angle.
+
+**Gravitational Force:**
+[latexmath]
+++++
+\vec{F}_{effective} = m \cdot g \cdot (1 - \theta)
+++++
+
+Where θ is the inclination (0 to 1).
+
+**Code Implementation:**
+[source, python,linenums]
+----
+# src/views/demos/bumper_view.py:126-127
+self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
+----
+
+In the Bumper Demo:
+* `inclination = 1` (vertical board)
+* Effective gravity is minimized, allowing for more predictable bounces
+
+=== Collision Detection Strategy
+
+The demo uses a look-ahead collision detection to prevent tunneling (ball passing through objects).
+
+[source, python,linenums]
+----
+# src/views/demos/bumper_view.py:130-151
+# Calculate new position before moving
+new_x = self.ball.x + self.ball.velocity.x
+new_y = self.ball.y + self.ball.velocity.y
+
+# Check if the new position would cause a collision
+would_collide, colliding_object = self.board.would_ball_collide(
+    self.ball, new_x, new_y
+)
+
+if would_collide:
+    # Handle collision response
+    normal = colliding_object.get_normal(self.ball)
+    reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+    self.ball.velocity = reflected * self.ball.bounciness
+else:
+    # No collision, update normally
+    self.board.update()
+    self.ball.update()
+----
+
+This approach ensures:
+* No tunneling through obstacles
+* Accurate collision response
+* Stable physics at high velocities
+
+== Demo Configuration
+
+### Board Layout
+
+The Bumper Demo creates a 400×600 pixel play area with:
+
+[source]
+----
+Play Area: 400 pixels wide × 600 pixels high
+┌────────────────────────────────────────┐ ← Top wall
+│                                    │
+│                                    │
+│              ● Peg 1               │ Static circular obstacle
+│                                    │
+│                                    │
+│              ● Peg 2               │ Static circular obstacle
+│                                    │
+│                                    │
+└────────────────────────────────────────┘ ← Bottom wall
+  ↑                                  ↑
+Left wall                         Right wall
+----
+
+### Component Specifications
+
+**Boundary Walls:**
+* Width: 10 pixels
+* Height: 600 pixels (vertical), 400 pixels (horizontal)
+* Color: White (255, 255, 255)
+* Type: Static obstacles
+
+**Pegs:**
+* Radius: 20 pixels
+* Color: Green (50, 205, 50)
+* Type: Static circular obstacles
+* Position: Centered vertically at ±100 pixels offset
+
+**Ball:**
+* Radius: 10 pixels
+* Mass: 1.0 kg
+* Bounciness: 0.8 (80% energy retention)
+* Initial velocity: (0.2, 0) m/s
+* Color: Red (255, 0, 0)
+
+**Physics Parameters:**
+[source, python,linenums]
+----
+# src/core/world.py
+GRAVITY = 9.81  # m/s²
+
+# src/views/demos/bumper_view.py
+board_inclination = 1  # Vertical board
+ball_bounciness = 0.8  # Coefficient of restitution
+ball_mass = 1.0  # kg
+----
+
+== Step-by-Step Walkthrough
+
+### Initialization
+
+[.steps]
+. **Create Board**: Set up 400×600 play area
+. **Add Boundaries**: Create left, right, top, and bottom walls
+. **Place Pegs**: Position two circular obstacles at strategic locations
+. **Spawn Ball**: Create ball with initial velocity
+. **Set Physics**: Configure gravity, bounciness, and inclination
+
+### Physics Update Loop
+
+Each frame (60 FPS):
+
+[.steps]
+. **Apply Forces**: Add gravitational force to ball
+[latexmath]
+++++
+\vec{F}_{gravity} = m \cdot g \cdot (1 - \theta)
+++++
+
+. **Predict Position**: Calculate where ball would move
+[source, python,linenums]
+----
+new_x = ball.x + ball.velocity.x
+new_y = ball.y + ball.velocity.y
+----
+
+. **Check Collision**: Test if new position collides with any object
+[source, python,linenums]
+----
+would_collide, object = board.would_ball_collide(ball, new_x, new_y)
+----
+
+. **Handle Collision or Update**:
+.. *If collision*: Calculate reflection and update velocity
+[source, python,linenums]
+----
+normal = object.get_normal(ball)
+reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
+ball.velocity = reflected * ball.bounciness
+----
+.. *If no collision*: Update ball position normally
+[source, python,linenums]
+----
+ball.update()
+----
+
+. **Render**: Draw board, pegs, and ball to screen
+
+### Collision Response Example
+
+**Scenario**: Ball traveling at 45° angle collides with a vertical wall
+
+1. **Initial State**:
+* Velocity: v = (5, 5) m/s
+* Wall normal: N = (-1, 0) (points left)
+
+2. **Calculate Reflection**:
+[latexmath]
+++++
+\vec{R} = (5, 5) - 2[(5, 5) \cdot (-1, 0)](-1, 0)
+\vec{R} = (5, 5) - 2(-5)(-1, 0)
+\vec{R} = (5, 5) - (10, 0)
+\vec{R} = (-5, 5)
+++++
+
+3. **Apply Bounciness**:
+[latexmath]
+++++
+v_{new} = (-5, 5) \times 0.8 = (-4, 4)
+++++
+
+4. **Result**: Ball bounces horizontally left at 80% of original speed
+
+== Mathematical Analysis
+
+### Energy Conservation
+
+**Kinetic Energy**:
+[latexmath]
+++++
+E_k = \frac{1}{2}mv^2
+++++
+
+**Energy Lost per Collision**:
+[latexmath]
+++++
+\Delta E = E_{initial} - E_{final} = E_{initial} - (e^2 \cdot E_{initial})
+\Delta E = E_{initial}(1 - e^2)
+++++
+
+With e = 0.8:
+[latexmath]
+++++
+\Delta E = E_{initial}(1 - 0.64) = 0.36 \cdot E_{initial}
+++++
+
+36% of kinetic energy is lost per collision.
+
+### Multi-Collision Energy Loss
+
+For n collisions:
+[latexmath]
+++++
+E_{final} = E_{initial} \times e^{2n}
+++++
+
+*After 1 collision*: 64% of energy remains
+*After 2 collisions*: 41% of energy remains
+*After 3 collisions*: 26% of energy remains
+*After 5 collisions*: 11% of energy remains
+
+The ball eventually comes to rest due to accumulated energy loss.
+
+### Velocity Reflection Derivation
+
+The reflection formula can be derived from vector algebra:
+
+1. **Decompose Velocity**:
+[latexmath]
+++++
+\vec{J} = \vec{J}_{\parallel} + \vec{J}_{\perp}
+++++
+
+2. **Project onto Normal**:
+[latexmath]
+++++
+\vec{J}_{\perp} = (\vec{J} \cdot \vec{N})\vec{N}
+++++
+
+3. **Reflect Perpendicular Component**:
+[latexmath]
+++++
+\vec{J}'_{\perp} = -\vec{J}_{\perp} = -(\vec{J} \cdot \vec{N})\vec{N}
+++++
+
+4. **Combine**:
+[latexmath]
+++++
+\vec{R} = \vec{J}_{\parallel} + \vec{J}'_{\perp}
+\vec{R} = (\vec{J} - (\vec{J} \cdot \vec{N})\vec{N}) - (\vec{J} \cdot \vec{N})\vec{N}
+\vec{R} = \vec{J} - 2(\vec{J} \cdot \vec{N})\vec{N}
+++++
+
+== Educational Applications
+
+### Learning Objectives
+
+After using this demo, students should understand:
+
+[.learning-objectives]
+* **icon:check[role=green] Vector Mathematics**: How to work with 2D vectors
+* **icon:check[role=green] Collision Physics**: How objects bounce off surfaces
+* **icon:check[role=green] Energy Conservation**: How energy is lost in collisions
+* **icon:check[role=green] Normal Vectors**: How to calculate surface normals
+* **icon:check[role=green] Reflection Formula**: How to implement realistic bounces
+
+### Classroom Activities
+
+**Activity 1: Bounciness Experiment**
+. Run demo with default bounciness (0.8)
+. Count how many bounces before ball stops
+. Modify bounciness to 1.0 (elastic) and 0.5 (inelastic)
+. Compare bounce counts and energy loss
+
+**Activity 2: Trajectory Analysis**
+. Observe ball path over time
+. Sketch the trajectory on paper
+. Mark collision points and velocity changes
+. Verify reflection angle equals incident angle
+
+**Activity 3: Peg Position Experiment**
+. Modify peg positions in code
+. Move pegs to create chaotic or predictable paths
+. Design a peg layout for maximum number of bounces
+
+**Activity 4: Initial Velocity Study**
+. Change initial velocity magnitude and direction
+. Observe how initial conditions affect path
+. Try to achieve specific target peg collisions
+
+### Physics Principles Illustrated
+
+1. **Newton's Laws**:
+* First law: Ball continues in motion until collision
+* Second law: F = ma (gravity accelerates ball)
+* Third law: Action-reaction pairs in collisions
+
+2. **Conservation Laws**:
+* Energy: Kinetic energy decreases over time (non-conservative collisions)
+* Momentum: Momentum is conserved in collisions (with mass = 1 for simplicity)
+
+3. **Geometric Principles**:
+* Reflection angle equals incident angle
+* Normal vectors are perpendicular to surfaces
+* Tangent vectors are parallel to surfaces
+
+== Troubleshooting
+
+### Ball Gets Stuck in Peg
+
+**Symptoms**: Ball becomes trapped inside peg or wall
+
+**Causes**:
+* Ball velocity too high (tunneling)
+* Look-ahead collision detection missed collision
+* Peg/ball size mismatch
+
+**Solutions**:
+[source, python,linenums]
+----
+# Reduce maximum velocity
+if ball.velocity.length() > max_speed:
+    ball.velocity = ball.velocity.normalize() * max_speed
+
+# Ensure ball is pushed out of collision
+if would_collide:
+    ball.velocity = reflected * bounciness
+    ball.x = ball.x - ball.velocity.x * 2  # Move back
+    ball.y = ball.y - ball.velocity.y * 2
+----
+
+### Ball Loses Energy Too Fast
+
+**Symptoms**: Ball stops moving very quickly
+
+**Causes**:
+* Bounciness too low
+* Too many collisions per frame
+* Incorrect gravity scaling
+
+**Solutions**:
+[source, python,linenums]
+----
+# Increase bounciness
+ball.bounciness = 0.9  # Higher retention
+
+# Reduce gravity
+board.inclination = 1  # Minimize effective gravity
+----
+
+### Collision Response Incorrect
+
+**Symptoms**: Ball bounces in wrong direction
+
+**Causes**:
+* Normal vector calculated incorrectly
+* Reflection formula has sign error
+* Normal direction (inward/outward) confusion
+
+**Solutions**:
+[source, python,linenums]
+----
+# Verify normal direction
+# Normal should point AWAY from surface
+normal = surface.get_normal(ball)
+
+# Ensure normal is not zero
+if normal.length() == 0:
+    normal = Vector2(0, 0)  # Fallback
+
+# Double-check reflection formula
+reflected = velocity - 2 * velocity.dot(normal) * normal
+----
+
+== Code Implementation
+
+### Key Methods
+
+**BumperView.update()**:
+[source, python,linenums]
+----
+def update(self):
+    '''Update game state with physics simulation.'''
+    # Apply forces
+    self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+    self.ball.add_force(Vector2(0, -GRAVITY * (1 - self.board.inclination) * self.ball.mass))
+
+    # Predict collision
+    new_x = self.ball.x + self.ball.velocity.x
+    new_y = self.ball.y + self.ball.velocity.y
+    would_collide, colliding_object = self.board.would_ball_collide(
+        self.ball, new_x, new_y
+    )
+
+    # Handle collision or update
+    if would_collide and colliding_object:
+        normal = colliding_object.get_normal(self.ball)
+        reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+        self.ball.velocity = reflected * self.ball.bounciness
+    else:
+        self.board.update()
+        self.ball.update()
+----
+
+**Board.would_ball_collide()**:
+[source, python,linenums]
+----
+def would_ball_collide(self, ball, new_x, new_y):
+    '''Check if ball would collide at new position.'''
+    # Store current position
+    old_x, old_y = ball.x, ball.y
+
+    # Temporarily update position
+    ball.x = new_x
+    ball.y = new_y
+
+    # Check for collision
+    collided_object = pygame.sprite.spritecollideany(
+        ball, self.obstacles + self.boundaries
+    )
+
+    # Restore original position
+    ball.x, ball.y = old_x, old_y
+
+    return (collided_object is not None), collided_object
+----
+
+### Configuration Options
+
+**Adjustable Parameters**:
+[source, python,linenums]
+----
+# In src/views/demos/bumper_view.py
+
+# Board configuration
+board_width = 400
+board_height = 600
+inclination = 1.0  # 0 = horizontal, 1 = vertical
+
+# Ball properties
+ball_radius = 10
+ball_mass = 1.0
+ball_bounciness = 0.8  # 0.7 to 0.9 recommended
+
+# Peg configuration
+peg_radius = 20
+peg_positions = [
+    (width//2, height//2 - 100),  # Top peg
+    (width//2, height//2 + 100),  # Bottom peg
+]
+----
+
+== Advanced Topics
+
+### Custom Peg Arrangement
+
+To create custom peg layouts:
+
+[source, python,linenums]
+----
+# In BumperView.__init__
+
+# Create pyramid arrangement
+pegs = []
+for row in range(4):
+    for col in range(row + 1):
+        x = center_x + (col - row/2) * spacing
+        y = center_y + row * spacing
+        pegs.append(Peg(x=x, y=y, radius=20, color=Color(50, 205, 50)))
+
+self.board = Board(
+    boundaries=[...],
+    components=pegs,
+    balls=[self.ball],
+    inclination=1,
+)
+----
+
+### Variable Bounciness
+
+Different surfaces can have different bounciness:
+
+[source, python,linenums]
+----
+# In Peg class
+class Peg(Sprite):
+    def __init__(self, x, y, radius, bounciness=0.8):
+        self.bounciness = bounciness
+
+# In collision response
+reflected = velocity - 2 * velocity.dot(normal) * normal
+velocity = reflected * object.bounciness  # Use object's bounciness
+----
+
+### Gravity Vector Manipulation
+
+Apply gravity in different directions:
+
+[source, python,linenums]
+----
+# Standard gravity (downward)
+self.ball.add_force(Vector2(0, GRAVITY * ball.mass))
+
+# Horizontal gravity (rightward)
+self.ball.add_force(Vector2(GRAVITY * ball.mass, 0))
+
+# Zero gravity (space)
+# Don't apply any gravity force
+
+# Oscillating gravity
+time_factor = pygame.time.get_ticks() / 1000
+gravity_x = math.sin(time_factor) * GRAVITY
+gravity_y = math.cos(time_factor) * GRAVITY
+self.ball.add_force(Vector2(gravity_x, gravity_y) * ball.mass)
+----
+
+== Performance Optimization
+
+### Collision Detection Optimization
+
+**Current**: Linear search through all obstacles
+**Optimization**: Spatial partitioning (quadtree or grid)
+
+[source, python,linenums]
+----
+# Grid-based spatial partitioning
+class SpatialGrid:
+    def __init__(self, width, height, cell_size):
+        self.cell_size = cell_size
+        self.cells = {}
+
+    def add(self, object):
+        cell_x = int(object.rect.x / self.cell_size)
+        cell_y = int(object.rect.y / self.cell_size)
+        cell = self.cells.setdefault((cell_x, cell_y), [])
+        cell.append(object)
+
+    def get_nearby(self, object):
+        cell_x = int(object.rect.x / self.cell_size)
+        cell_y = int(object.rect.y / self.cell_size)
+        return self.cells.get((cell_x, cell_y), [])
+----
+
+### Rendering Optimization
+
+**Current**: Redraw entire board each frame
+**Optimization**: Dirty rectangle rendering
+
+[source, python,linenums]
+----
+# Track changed areas
+dirty_rects = []
+
+# Only redraw moving objects
+dirty_rects.append(ball.rect.inflate(10, 10))
+
+# Update only dirty regions
+pygame.display.update(dirty_rects)
+----
+
+== Related Resources
+
+### Documentation Files
+
+* `docs/physics_demo_catalog.md` - Overview of all demos
+* `docs/physics_overview.adoc` - Physics engine fundamentals
+* `docs/force_and_motion.adoc` - Force and motion principles
+* `docs/controlled_ball_demo.adoc` - Alternative force vector demo
+
+### Source Code
+
+* `src/views/demos/bumper_view.py` - Main demo implementation
+* `src/objects/ball.py` - Ball physics object
+* `src/objects/peg.py` - Peg (circular obstacle) object
+* `src/objects/bumper.py` - Bumper (dynamic circular obstacle) object
+* `src/objects/horizontal_wall.py` - Horizontal wall object
+* `src/objects/vertical_wall.py` - Vertical wall object
+* `src/objects/board.py` - Board and collision management
+* `src/core/world.py` - Physics constants
+
+### External References
+
+* https://en.wikipedia.org/wiki/Coefficient_of_restitution[Coefficient of Restitution - Wikipedia]
+* https://en.wikipedia.org/wiki/Reflection_(physics)[Reflection (Physics) - Wikipedia]
+* https://en.wikipedia.org/wiki/Collision_response[Collision Response - Wikipedia]
+
+== Summary
+
+The Bumper Demo provides a comprehensive demonstration of collision physics and vector reflection. Through interaction with circular obstacles and boundary walls, users can observe and understand:
+
+* How vector reflection creates realistic bounces
+* The role of the coefficient of restitution in energy loss
+* The importance of normal vectors in collision calculations
+* How inclined plane physics affects gravitational force
+* The principles of energy conservation in collisions
+
+This demo serves as an excellent educational tool for anyone interested in understanding the physics behind pinball, billiards, or any collision-based game or simulation.
+
+**Launch the demo**: Press `1` from the home screen
+**Explore**: Modify parameters to see how physics behavior changes
+**Learn**: Use the code as a reference for your own physics simulations
+
+---
+
+*Last Updated: 2025-10-07*
+*Version: 1.0.0*
+*Authors: Particle Pinball Team*

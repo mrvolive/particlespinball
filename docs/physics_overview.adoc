@@ -93,9 +93,9 @@ The simulation implements elastic collisions with energy loss through the coeffi
 
 [source, python,linenums]
 ----
-# src/views/demos/ball_bounce_view.py:79-86
-reflected = ball.velocity - 2 * ball.velocity.dot(normal) * normal
-ball.velocity = reflected * ball.bounciness
+# src/views/demos/bumper_view.py:147-148
+reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+self.ball.velocity = reflected * self.ball.bounciness
 ----
 
 Where:

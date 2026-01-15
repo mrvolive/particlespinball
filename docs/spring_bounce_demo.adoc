@@ -1,0 +1,812 @@
+= Spring Bounce Demo Documentation
+
+The Spring Bounce Demo demonstrates impulse-momentum transfer through a user-controlled moving wall that acts as a spring. This interactive simulation illustrates how moving surfaces transfer momentum to objects and how velocity can be modified through controlled collisions.
+
+== Overview
+
+In this demo, a ball falls under gravity and bounces on a horizontal surface. Users can move the bottom wall upward during the simulation, imparting additional upward velocity to the ball, simulating the effect of a spring mechanism. This provides hands-on experience with impulse-momentum transfer and real-time physics control.
+
+[.demo-highlights]
+* **icon:arrows-alt[role=blue] Interactive Physics**: Control wall position with arrow keys
+* **icon:bolt[role=green] Impulse Transfer**: Understand momentum transfer from moving objects
+* **icon:rocket[role=orange] Velocity Modification**: Directly influence ball trajectory
+* **icon:hand-pointer[role=purple] Real-time Control**: Adjust physics parameters during simulation
+* **icon:lightbulb[role=red] Spring Simulation**: Learn how springs work through active control
+
+== Key Physics Concepts
+
+=== Impulse-Momentum Theorem
+
+The fundamental principle demonstrated in this demo is the impulse-momentum theorem.
+
+[latexmath]
+++++
+\vec{J} = \Delta \vec{p} = m\Delta \vec{v}
+++++
+
+Where:
+* **J** = Impulse (change in momentum)
+* **p** = Momentum (mass × velocity)
+* **m** = Mass
+* **v** = Velocity
+
+**Key Insight**: When a moving wall collides with a ball, the wall transfers some of its momentum to the ball.
+
+=== Velocity Transfer Mechanism
+
+Unlike static collisions where only direction changes, moving surfaces can modify the magnitude of velocity.
+
+**Standard Bounce (Static Wall)**:
+[latexmath]
+++++
+v_{new} = -v_{old} \times e
+++++
+
+Where *e* is the coefficient of restitution.
+
+**Spring Bounce (Moving Wall)**:
+[latexmath]
+++++
+v_{new} = v_{reflected} + v_{wall} \times k
+++++
+
+Where *k* is the spring coefficient (1.5 in this demo).
+
+**Code Implementation**:
+[source, python,linenums]
+----
+# src/views/demos/spring_bounce_view.py:90-92
+if colliding_object == moving_wall and wall_velocity.y < 0:
+    # Spring effect: transfer wall velocity to ball
+    self.ball.velocity.y += self.wall_velocity.y * 1.5
+----
+
+=== Hooke's Law (Simplified)
+
+While the demo doesn't implement true spring physics, the effect is conceptually similar to Hooke's Law.
+
+[latexmath]
+++++
+\vec{F} = -k\vec{x}
+++++
+
+Where:
+* **F** = Restoring force
+* **k** = Spring constant
+* **x** = Displacement from equilibrium
+
+**In Our Demo**:
+* The "spring" is the user-controlled wall
+* Instead of Hooke's Law, we use direct velocity transfer
+* The coefficient 1.5 simulates a "bouncy" spring
+
+=== Vector Inversion
+
+Before applying the spring effect, the normal vector is inverted to ensure it points away from the collision surface.
+
+**Why Invert?**
+The reflection formula expects the normal to point outward from the surface, but the calculated normal points toward the ball.
+
+[source, python,linenums]
+----
+# src/views/demos/spring_bounce_view.py:83-85
+# Invert normal to point outwards from collision surface
+normal *= -1
+
+# Then calculate reflection
+reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+----
+
+=== Collision Detection with Moving Objects
+
+The demo handles collisions differently for the moving wall versus static objects.
+
+**Detection Strategy**:
+[source, python,linenums]
+----
+# src/views/demos/spring_bounce_view.py:71-89
+new_x = self.ball.x + self.ball.velocity.x
+new_y = self.ball.y + self.ball.velocity.y
+would_collide, colliding_object = self.board.would_ball_collide(
+    self.ball, new_x, new_y
+)
+
+if would_collide and colliding_object:
+    normal = colliding_object.get_normal(self.ball)
+    normal *= -1  # Invert for outward normal
+
+    # Calculate reflection
+    reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+    self.ball.velocity = reflected * self.ball.bounciness
+
+    # Apply spring effect if it's the moving wall
+    if colliding_object == self.moving_wall and self.wall_velocity.y < 0:
+        self.ball.velocity.y += self.wall_velocity.y * 1.5
+----
+
+== Demo Configuration
+
+### Layout
+
+The demo creates a simple vertical play area:
+
+[source]
+----
+┌──────────────────────┐ ← Top wall (static)
+│                      │
+│                      │
+│         ●           │ ← Ball
+│                      │
+│                      │
+│                      │
+│══════════════════════════ ← Moving wall (user-controlled)
+└──────────────────────┘
+    ↑
+  Press UP to move wall up (spring effect)
+  Press DOWN to move wall down
+----
+
+### Component Specifications
+
+**Ball**:
+* Radius: 10 pixels
+* Mass: 1.0 kg
+* Bounciness: 0.8 (80% energy retention)
+* Initial position: (width//2, 50) - Near top of screen
+* Initial velocity: (0, 0) m/s - Starts at rest
+* Color: Red (255, 0, 0)
+
+**Moving Wall**:
+* Width: 500 pixels
+* Height: 20 pixels
+* Initial position: (width//2 - 250, height - 50) - Bottom of screen
+* Color: White (255, 255, 255)
+* Speed: 5 pixels/frame (when moving)
+* Direction: Vertical only (UP/DOWN)
+
+**Top Wall**:
+* Width: Screen width
+* Height: 5 pixels
+* Position: Top of screen (y = 0)
+* Color: White (255, 255, 255)
+* Type: Static
+
+**Physics Parameters**:
+[source, python,linenums]
+----
+# src/core/world.py
+GRAVITY = 9.81  # m/s²
+
+# src/views/demos/spring_bounce_view.py
+wall_speed = 5  # pixels per frame
+spring_coefficient = 1.5  # Velocity transfer multiplier
+ball_bounciness = 0.8  # Coefficient of restitution
+----
+
+== User Controls
+
+### Keyboard Input
+
+| Key | Action | Effect |
+|-----|--------|--------|
+| **UP Arrow** (Hold) | Move wall upward | Imparts upward impulse to ball on collision |
+| **DOWN Arrow** (Hold) | Move wall downward | Moves wall away from ball |
+| **Release Keys** | Stop wall movement | Wall stays in position |
+
+### Control Strategy
+
+**Maximum Height Launch**:
+. Wait for ball to reach its lowest point (just before bouncing)
+. Press and hold UP arrow
+. Time the wall movement to collide with ball at peak compression
+. Ball receives maximum impulse
+. Release UP arrow after ball launches
+
+**Soft Bounce**:
+. Press UP arrow gently (short press)
+. Collide with ball when it has low downward velocity
+. Ball receives smaller impulse
+. Good for controlled movement
+
+**Sequence of Bounces**:
+. Launch ball high with wall
+. Wait for ball to fall
+. Time second bounce for medium height
+. Repeat for rhythmic bouncing pattern
+
+== Step-by-Step Walkthrough
+
+### Initialization
+
+[.steps]
+. **Create Moving Wall**: Set up 500×20 pixel horizontal wall at bottom
+. **Create Top Wall**: Set up boundary at top of screen
+. **Spawn Ball**: Create ball near top of screen
+. **Set Physics**: Configure gravity, wall speed, and spring coefficient
+. **Initialize State**: Set wall velocity to zero (stationary)
+
+### Physics Update Loop
+
+Each frame (60 FPS):
+
+[.steps]
+. **Update Wall Position**: Move wall based on current velocity
+[source, python,linenums]
+----
+self.moving_wall.rect.y += self.wall_velocity.y
+----
+
+. **Apply Gravity**: Add gravitational force to ball
+[source, python,linenums]
+----
+self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+----
+
+. **Predict Collision**: Calculate where ball would move
+[source, python,linenums]
+----
+new_x = self.ball.x + self.ball.velocity.x
+new_y = self.ball.y + self.ball.velocity.y
+----
+
+. **Check Collision**: Test if new position collides with any object
+[source, python,linenums]
+----
+would_collide, colliding_object = self.board.would_ball_collide(
+    self.ball, new_x, new_y
+)
+----
+
+. **Handle Collision**:
+.. **Calculate Reflection**: Apply standard bounce physics
+[source, python,linenums]
+----
+normal = colliding_object.get_normal(self.ball)
+normal *= -1  # Invert for outward normal
+reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+self.ball.velocity = reflected * self.ball.bounciness
+----
+.. **Apply Spring Effect**: If moving wall colliding upward
+[source, python,linenums]
+----
+if colliding_object == self.moving_wall and self.wall_velocity.y < 0:
+    # Transfer wall velocity to ball
+    self.ball.velocity.y += self.wall_velocity.y * 1.5
+----
+.. **Update Objects**: If no collision, update normally
+[source, python,linenums]
+----
+self.board.update()
+self.ball.update()
+----
+
+### Event Handling
+
+[source, python,linenums]
+----
+# src/views/demos/spring_bounce_view.py:119-127
+def handle_event(self, event):
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_UP:
+            self.wall_velocity.y = -self.wall_speed  # Move up
+        elif event.key == pygame.K_DOWN:
+            self.wall_velocity.y = self.wall_speed  # Move down
+    elif event.type == pygame.KEYUP:
+        if event.key in [pygame.K_UP, pygame.K_DOWN]:
+            self.wall_velocity.y = 0  # Stop moving
+----
+
+== Mathematical Analysis
+
+### Spring Effect Calculation
+
+When the moving wall collides with the ball:
+
+**Scenario**: Wall moving up at -5 m/s, ball moving down at 5 m/s
+
+1. **Standard Reflection** (no wall movement):
+[latexmath]
+++++
+v_{reflected} = -5 \times 0.8 = -4 \text{ m/s}
+++++
+
+2. **Apply Spring Effect**:
+[latexmath]
+++++
+v_{new} = v_{reflected} + v_{wall} \times k
+v_{new} = -4 + (-5) \times 1.5
+v_{new} = -4 - 7.5
+v_{new} = -11.5 \text{ m/s}
+++++
+
+3. **Result**: Ball bounces upward at 11.5 m/s instead of 4 m/s (187% increase!)
+
+### Energy Transfer
+
+**Kinetic Energy Before Collision**:
+[latexmath]
+++++
+E_{initial} = \frac{1}{2}mv^2 = \frac{1}{2}(1)(5)^2 = 12.5 \text{ J}
+++++
+
+**Kinetic Energy After Spring Bounce**:
+[latexmath]
+++++
+E_{final} = \frac{1}{2}mv^2 = \frac{1}{2}(1)(11.5)^2 = 66.1 \text{ J}
+++++
+
+**Energy Increase**: 66.1 - 12.5 = 53.6 J (428% increase!)
+
+*Note: This violates energy conservation because we're adding energy from the user-controlled wall.*
+
+### Velocity Transfer Efficiency
+
+The spring coefficient (1.5) determines how efficiently momentum is transferred.
+
+* **k = 1.0**: 100% of wall velocity transferred
+* **k = 1.5**: 150% of wall velocity transferred (current setting)
+* **k = 2.0**: 200% of wall velocity transferred (super spring)
+
+**Optimal Range**: 1.0 to 2.0 for realistic spring-like behavior
+
+### Timing Analysis
+
+For maximum height, time the wall collision when the ball's downward velocity is highest.
+
+**Optimal Timing**:
+. Ball accelerates downward under gravity
+. Maximum downward velocity just before hitting wall
+. Wall moves up, collides with ball at this moment
+. Maximum momentum transfer occurs
+
+**Suboptimal Timing**:
+. Ball already bouncing upward (away from wall)
+. Wall collides with ball moving in same direction
+. Reduced momentum transfer or no transfer
+
+### Momentum Conservation
+
+**Without Wall**:
+[latexmath]
+++++
+p_{before} = mv = 1 \times 5 = 5 \text{ kg·m/s}
+p_{after} = -mv = -1 \times 4 = -4 \text{ kg·m/s}
+\Delta p = -4 - 5 = -9 \text{ kg·m/s} \text{ (energy loss)}
+++++
+
+**With Moving Wall**:
+[latexmath]
+++++
+p_{wall} = m_{wall}v_{wall} \text{ (implied large mass)}
+\Delta p_{ball} = p_{after} - p_{before}
+\Delta p_{ball} = -11.5 - 5 = -16.5 \text{ kg·m/s}
+
+\text{Momentum gained by ball} = 16.5 - 4 = 12.5 \text{ kg·m/s}
+\text{Momentum lost by wall} = \Delta p_{ball} - \Delta p_{no\_wall}
+\text{Momentum lost by wall} = -16.5 - (-9) = -7.5 \text{ kg·m/s}
+++++
+
+The wall loses momentum equal to the impulse it imparts to the ball.
+
+== Educational Applications
+
+### Learning Objectives
+
+After using this demo, students should understand:
+
+[.learning-objectives]
+* **icon:check[role=green] Impulse-Momentum**: How momentum transfers between objects
+* **icon:check[role=green] Moving Collisions**: Difference between static and dynamic collisions
+* **icon:check[role=green] Velocity Modification**: Direct control over object motion
+* **icon:check[role=green] Energy Addition**: How external forces increase system energy
+* **icon:check[role=green] Spring Physics**: Conceptual understanding of spring-like behavior
+
+### Classroom Activities
+
+**Activity 1: Height Measurement**
+. Launch ball with spring effect
+. Measure maximum height reached
+. Try different timing strategies
+. Compare with standard bounce (no wall movement)
+
+**Activity 2: Spring Coefficient Experiment**
+. Modify spring coefficient in code (line 92)
+. Try values: 1.0, 1.5, 2.0, 3.0
+. Measure how coefficient affects maximum height
+. Discuss realistic vs. unrealistic values
+
+**Activity 3: Energy Analysis**
+. Calculate energy before and after spring bounce
+. Verify energy increase matches formula
+. Discuss where energy comes from (user input)
+. Compare with energy-conserving collisions
+
+**Activity 4: Timing Challenge**
+. Challenge students to achieve specific heights
+. Vary target heights: 100%, 200%, 300% of screen
+. Students must master timing control
+. Discuss optimal timing strategies
+
+**Activity 5: Reverse Spring**
+. Can you push the ball DOWN with the wall?
+. Experiment with downward wall movement
+. Analyze what happens and why
+. Discuss limitations of the spring effect
+
+### Physics Principles Illustrated
+
+1. **Newton's Second Law**:
+[latexmath]
+++++
+\vec{F} = m\vec{a}
+++++
+The force from the wall creates an acceleration that changes the ball's velocity.
+
+2. **Impulse-Momentum Theorem**:
+[latexmath]
+++++
+\vec{J} = \Delta \vec{p}
+++++
+The impulse from the wall changes the ball's momentum.
+
+3. **Work-Energy Principle**:
+[latexmath]
+++++
+W = \Delta E
+++++
+The wall does work on the ball, increasing its kinetic energy.
+
+4. **Kinematics**:
+Position, velocity, and acceleration relationships are clearly observable in real-time.
+
+5. **Hooke's Law (Conceptual)**:
+While not mathematically identical, the behavior is conceptually similar to a spring.
+
+== Code Implementation
+
+### Key Methods
+
+**SpringBounceView.update()**:
+[source, python,linenums]
+----
+def update(self):
+    '''Update game state with spring physics.'''
+    # Update wall position
+    self.moving_wall.rect.y += self.wall_velocity.y
+
+    # Apply gravity
+    self.ball.add_force(Vector2(0, GRAVITY * self.ball.mass))
+
+    # Predict collision
+    new_x = self.ball.x + self.ball.velocity.x
+    new_y = self.ball.y + self.ball.velocity.y
+    would_collide, colliding_object = self.board.would_ball_collide(
+        self.ball, new_x, new_y
+    )
+
+    # Handle collision
+    if would_collide and colliding_object:
+        normal = colliding_object.get_normal(self.ball)
+        normal *= -1  # Invert for outward normal
+        reflected = self.ball.velocity - 2 * self.ball.velocity.dot(normal) * normal
+        self.ball.velocity = reflected * self.ball.bounciness
+
+        # Spring effect
+        if colliding_object == self.moving_wall and self.wall_velocity.y < 0:
+            self.ball.velocity.y += self.wall_velocity.y * 1.5
+    else:
+        # No collision, update normally
+        self.board.update()
+        self.ball.update()
+----
+
+**SpringBounceView.handle_event()**:
+[source, python,linenums]
+----
+def handle_event(self, event):
+    '''Handle keyboard input for wall control.'''
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_UP:
+            self.wall_velocity.y = -self.wall_speed
+        elif event.key == pygame.K_DOWN:
+            self.wall_velocity.y = self.wall_speed
+    elif event.type == pygame.KEYUP:
+        if event.key in [pygame.K_UP, pygame.K_DOWN]:
+            self.wall_velocity.y = 0
+
+    return self
+----
+
+### Configuration Options
+
+**Adjustable Parameters**:
+[source, python,linenums]
+----
+# In src/views/demos/spring_bounce_view.py
+
+# Wall settings
+wall_speed = 5  # pixels per frame (1 to 10 recommended)
+spring_coefficient = 1.5  # Velocity transfer multiplier (1.0 to 2.0)
+
+# Ball settings
+ball_bounciness = 0.8  # Standard bounce (0.7 to 0.9)
+ball_mass = 1.0  # kg
+
+# Gravity (from core/world.py)
+GRAVITY = 9.81  # m/s²
+----
+
+**Customization Examples**:
+
+**Super Spring** (higher launches):
+[source, python,linenums]
+----
+wall_speed = 8  # Faster wall
+spring_coefficient = 2.0  # More efficient transfer
+----
+
+**Gentle Spring** (controlled movement):
+[source, python,linenums]
+----
+wall_speed = 3  # Slower wall
+spring_coefficient = 1.2  # Less efficient transfer
+----
+
+**Moon Gravity** (slower fall):
+[source, python,linenums]
+----
+# In core/world.py
+GRAVITY = 1.62  # Moon gravity (m/s²)
+----
+
+== Advanced Topics
+
+### Variable Spring Coefficient
+
+Make the spring effect depend on collision velocity:
+
+[source, python,linenums]
+----
+def get_spring_coefficient(self, ball_velocity, wall_velocity):
+    '''Calculate dynamic spring coefficient.'''
+    relative_velocity = abs(ball_velocity.y - wall_velocity.y)
+
+    # Higher velocity = more efficient transfer
+    if relative_velocity > 10:
+        return 2.0  # Very bouncy
+    elif relative_velocity > 5:
+        return 1.5  # Normal bouncy
+    else:
+        return 1.0  # Less bouncy
+
+# In collision handling
+spring_k = self.get_spring_coefficient(
+    self.ball.velocity.y,
+    self.wall_velocity.y
+)
+self.ball.velocity.y += self.wall_velocity.y * spring_k
+----
+
+### Multi-Directional Spring
+
+Allow wall to move horizontally as well:
+
+[source, python,linenums]
+----
+# Add horizontal movement
+self.wall_velocity = Vector2(0, 0)
+
+def handle_event(self, event):
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_UP:
+            self.wall_velocity.y = -self.wall_speed
+        elif event.key == pygame.K_DOWN:
+            self.wall_velocity.y = self.wall_speed
+        elif event.key == pygame.K_LEFT:
+            self.wall_velocity.x = -self.wall_speed
+        elif event.key == pygame.K_RIGHT:
+            self.wall_velocity.x = self.wall_speed
+    elif event.type == pygame.KEYUP:
+        if event.key == pygame.K_UP:
+            self.wall_velocity.y = 0
+        elif event.key == pygame.K_DOWN:
+            self.wall_velocity.y = 0
+        elif event.key == pygame.K_LEFT:
+            self.wall_velocity.x = 0
+        elif event.key == pygame.K_RIGHT:
+            self.wall_velocity.x = 0
+
+# In collision handling
+if colliding_object == self.moving_wall:
+    self.ball.velocity += self.wall_velocity * 1.5
+----
+
+### Energy Visualization
+
+Display energy bars or graphs:
+
+[source, python,linenums]
+----
+def draw_energy_info(self):
+    '''Draw kinetic energy visualization.'''
+    ke = 0.5 * self.ball.mass * self.ball.velocity.length_squared()
+
+    # Draw energy bar
+    max_energy = 100  # Joules
+    bar_width = 200
+    bar_height = 20
+    fill_width = min(bar_width, (ke / max_energy) * bar_width)
+
+    # Background
+    pygame.draw.rect(self.screen, (50, 50, 50),
+                     (self.width - 220, 20, bar_width, bar_height))
+
+    # Fill
+    color = (min(255, int(ke * 5)), 0, 0)
+    pygame.draw.rect(self.screen, color,
+                     (self.width - 220, 20, fill_width, bar_height))
+
+    # Text
+    text = self.font.render(f'KE: {ke:.1f} J', True, (255, 255, 255))
+    self.screen.blit(text, (self.width - 220, 45))
+
+def draw(self):
+    self.screen.fill((0, 0, 0))
+    self.board.draw(self.screen)
+    self.draw_energy_info()
+    pygame.display.flip()
+----
+
+== Troubleshooting
+
+### Ball Doesn't Launch High
+
+**Symptoms**: Ball bounces normally even when wall is moving
+
+**Causes**:
+* Wall moving in wrong direction
+* Timing incorrect (ball moving away from wall)
+* Spring coefficient too low
+
+**Solutions**:
+[source, python,linenums]
+----
+# Ensure wall moves UP (negative Y velocity)
+if event.key == pygame.K_UP:
+    self.wall_velocity.y = -self.wall_speed  # Negative for UP
+
+# Check timing - ball should be moving DOWN
+# Verify wall_velocity.y < 0 in collision check
+if self.wall_velocity.y < 0:  # Wall moving UP
+    # Apply spring effect
+----
+
+### Wall Doesn't Move
+
+**Symptoms**: Wall stays stationary despite key presses
+
+**Causes**:
+* Window doesn't have focus
+* Event handling not connected
+* Wall speed set to zero
+
+**Solutions**:
+[source, python,linenums]
+----
+# Ensure window has focus
+# Click the window to give it focus
+
+# Check event handling
+def handle_event(self, event):
+    print(f"Event: {event}")  # Debug print
+    if event.type == pygame.KEYDOWN:
+        print(f"Key pressed: {event.key}")  # Debug print
+        # ... rest of code
+
+# Verify wall_speed
+print(f"Wall speed: {self.wall_speed}")  # Should be > 0
+----
+
+### Ball Passes Through Wall
+
+**Symptoms**: Ball goes through moving wall without bouncing
+
+**Causes**:
+* Wall moving too fast (tunneling)
+* Collision detection misses moving objects
+* Wall and ball overlap significantly
+
+**Solutions**:
+[source, python,linenums]
+----
+# Limit wall speed
+max_wall_speed = 10
+self.wall_velocity.y = max(-max_wall_speed,
+                            min(max_wall_speed, self.wall_velocity.y))
+
+# Improve collision detection for moving objects
+# Add look-ahead for moving wall
+if self.wall_velocity.y != 0:
+    # Check multiple positions along wall path
+    for i in range(int(abs(self.wall_velocity.y)) + 1):
+        test_y = self.moving_wall.rect.y + i * (1 if self.wall_velocity.y > 0 else -1)
+        # Check collision at test_y
+        # ...
+----
+
+### Physics Feels Wrong
+
+**Symptoms**: Ball behavior doesn't match expectations
+
+**Causes**:
+* Gravity too high/low
+* Spring coefficient unrealistic
+* Time step incorrect
+
+**Solutions**:
+[source, python,linenums]
+----
+# Check gravity
+print(f"Gravity: {GRAVITY}")  # Should be 9.81
+
+# Check spring coefficient
+print(f"Spring k: {1.5}")  # Should be 1.0-2.0
+
+# Verify time step
+# In core/world.py
+DT = 1.0 / FPS  # Should be 1/60 ≈ 0.0167
+
+# Try adjusting
+GRAVITY = 5.0  # Lower gravity for "floaty" feel
+spring_coefficient = 1.0  # More realistic spring
+----
+
+== Related Resources
+
+### Documentation Files
+
+* `docs/physics_demo_catalog.md` - Overview of all demos
+* `docs/physics_overview.adoc` - Physics engine fundamentals
+* `docs/force_and_motion.adoc` - Force, momentum, and energy
+* `docs/controlled_ball_demo.adoc` - Alternative velocity control demo
+
+### Source Code
+
+* `src/views/demos/spring_bounce_view.py` - Main demo implementation
+* `src/objects/ball.py` - Ball physics object
+* `src/objects/horizontal_wall.py` - Horizontal wall object
+* `src/objects/board.py` - Board and collision management
+* `src/core/world.py` - Physics constants
+
+### External References
+
+* https://en.wikipedia.org/wiki/Impulse_(physics)[Impulse (Physics) - Wikipedia]
+* https://en.wikipedia.org/wiki/Momentum[Momentum - Wikipedia]
+* https://en.wikipedia.org/wiki/Hooke%27s_law[Hooke's Law - Wikipedia]
+* https://www.khanacademy.org/science/physics/linear-momentum/impulse-and-momentum-visualizer/a/what-is-impulse[Khan Academy: Impulse and Momentum]
+
+== Summary
+
+The Spring Bounce Demo provides an interactive exploration of impulse-momentum transfer and spring-like physics. By controlling the wall movement, users can:
+
+* **Understand Impulse**: See how moving objects transfer momentum
+* **Control Velocity**: Directly influence ball trajectory
+* **Learn Timing**: Master the art of optimal collision timing
+* **Observe Energy**: Watch how external forces increase system energy
+* **Experience Springs**: Gain intuition for spring-like behavior
+
+This demo is particularly valuable for:
+* Students learning impulse-momentum theorem
+* Game developers implementing bounce mechanics
+* Anyone interested in understanding how springs work
+* Those wanting to practice real-time physics control
+
+**Launch the demo**: Press `2` from the home screen
+**Experiment**: Try different timing strategies
+**Learn**: Use the physics understanding to create your own spring systems
+
+---
+
+*Last Updated: 2025-10-07*
+*Version: 1.0.0*
+*Authors: Particle Pinball Team*
