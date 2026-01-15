@@ -3,9 +3,7 @@ from pygame import Rect
 from pygame.color import Color
 
 from input.MouseListener import MouseListener
-from views.demos.ball_bounce_view import BallBounceView
 from views.demos.controlled_ball_view import ControlledBallView
-from views.demos.falling_ball_view import FallingBallView
 from views.demos.spring_bounce_view import SpringBounceView
 from views.demos.bumper_view import BumperView
 from views.demos.wind_simulation_view import WindSimulationView
@@ -38,11 +36,9 @@ class HomeView(View):
         # Define available views with their display names and keyboard shortcuts
         self.available_views = [
             {'name': 'Bumper Demo', 'class': BumperView, 'key': pygame.K_1},
-            {'name': 'Falling Ball Demo', 'class': FallingBallView, 'key': pygame.K_2},
-            {'name': 'Ball Bounce Demo', 'class': BallBounceView, 'key': pygame.K_3},
-            {'name': 'Spring Bounce Demo', 'class': SpringBounceView, 'key': pygame.K_4},
-            {'name': 'Wind Simulation Demo', 'class': WindSimulationView, 'key': pygame.K_5},
-            {'name': 'Controlled Ball Demo', 'class': ControlledBallView, 'key': pygame.K_6},
+            {'name': 'Spring Bounce Demo', 'class': SpringBounceView, 'key': pygame.K_2},
+            {'name': 'Wind Simulation Demo', 'class': WindSimulationView, 'key': pygame.K_3},
+            {'name': 'Controlled Ball Demo', 'class': ControlledBallView, 'key': pygame.K_4},
         ]
 
         # Create button rectangles for interactive navigation
